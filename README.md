@@ -61,7 +61,7 @@ Danach im Browser öffnen: `http://localhost:3000`
 ```mermaid
 flowchart LR
   A[Startseite\nGitHub-URL eingeben] --> B[Server Action\nURL wird geparst]
-  B --> C[/analyse/owner/repo]
+  B --> C[/analyse/[owner]/[repo]]
 
   C --> D[Analyse-Seite lädt]
   D --> E[GitHub-Metadaten abrufen]
