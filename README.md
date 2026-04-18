@@ -93,3 +93,29 @@ flowchart LR
 
 **What's in it?** hilft dir, Open Source nicht nur zu *finden*, sondern schnell zu *verstehen* und sicher einzusetzen.  
 Weniger Suchzeit. Mehr Umsetzungszeit.
+
+
+---
+
+## Deployment auf Railway
+
+1. Repository zu Railway verbinden ("Deploy from GitHub").
+2. Unter **Variables** mindestens diese Werte setzen:
+   - `GEMINI_API_KEY` (Pflicht)
+   - `GITHUB_TOKEN` (empfohlen, um GitHub-Rate-Limits zu vermeiden)
+3. Railway nutzt automatisch `railway.json` im Repo.
+4. Nach dem Deploy ist der Healthcheck unter `/api/health` erreichbar.
+
+### Warum dieses Setup production-ready ist
+- `next.config.ts` nutzt `output: "standalone"` für schlankere, stabilere Runtime-Artefakte.
+- `railway.json` definiert Startkommando + Healthcheck explizit.
+- Mit `GITHUB_TOKEN` sind GitHub-API-Limits deutlich seltener ein Problem.
+
+## Improvement mit bestem Aufwand/Impact-Verhältnis
+
+**Empfehlung:** Optionalen `GITHUB_TOKEN` im Backend nutzen (bereits umgesetzt).
+
+**Warum hoher Impact bei wenig Aufwand:**
+- Aufwand: nur wenige Zeilen Header-Logik.
+- Impact: deutlich weniger `403`/Rate-Limit-Fehler bei steigender Nutzung.
+- Kein Breaking Change: lokal funktioniert es weiter auch ohne Token.

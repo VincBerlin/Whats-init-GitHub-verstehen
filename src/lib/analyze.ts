@@ -43,6 +43,17 @@ Gib STRIKT dieses JSON ohne Markdown-Wrapper zurück:
 
 const GITHUB_IDENTIFIER_RE = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
 
+
+function getGitHubHeaders(): HeadersInit {
+  const token = process.env.GITHUB_TOKEN;
+
+  return {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "whats-in-it-app",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 export function isValidGitHubIdentifier(value: string): boolean {
   return GITHUB_IDENTIFIER_RE.test(value);
 }
@@ -117,7 +128,7 @@ export function parseAnalysisResult(rawText: string): AnalysisResult {
 
 async function fetchGitHubData(owner: string, repo: string): Promise<GitHubRepo> {
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-    headers: { Accept: "application/vnd.github+json" },
+    headers: getGitHubHeaders(),
     next: { revalidate: 3600 },
   });
   if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
@@ -127,7 +138,7 @@ async function fetchGitHubData(owner: string, repo: string): Promise<GitHubRepo>
 async function fetchReadme(owner: string, repo: string): Promise<string> {
   try {
     const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, {
-      headers: { Accept: "application/vnd.github+json" },
+      headers: getGitHubHeaders(),
       next: { revalidate: 3600 },
     });
     if (!res.ok) return "";
