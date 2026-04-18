@@ -24,7 +24,7 @@ Ideal, wenn du:
 
 ## Installation (lokal)
 
-Du brauchst nur Node.js (ab Version 18) und einen API-Key für Gemini.
+Du brauchst nur Node.js (ab Version 20.9.0) und einen API-Key für Gemini.
 
 1. Projekt herunterladen
 ```bash
