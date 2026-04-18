@@ -29,6 +29,7 @@ Du brauchst nur Node.js (ab Version 18) und einen API-Key für Gemini.
 1. Projekt herunterladen
 ```bash
 git clone <REPO_URL>
+cd Whats-in-it-GitHub-verstehen
 cd Whats-init-GitHub-verstehen
 ```
 
