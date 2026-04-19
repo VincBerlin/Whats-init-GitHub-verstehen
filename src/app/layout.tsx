@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-<<<<<<< HEAD
 import Link from "next/link";
-=======
 import Script from "next/script";
->>>>>>> ff16368 (Meine Änderung)
 import "./globals.css";
 import HeaderSearch from "@/components/HeaderSearch";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -39,27 +36,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen antialiased">
         <nav className="border-b border-slate-800/60 backdrop-blur-sm sticky top-0 z-50 bg-slate-950/80">
-<<<<<<< HEAD
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 gap-4">
             <Link href="/" className="flex items-center gap-2 font-semibold text-slate-100 hover:text-white transition-colors">
               <span className="text-blue-400 text-lg">⬡</span>
               <span>What&apos;s in it?</span>
             </Link>
-            <div className="flex items-center gap-6 text-sm text-slate-400">
-              <Link href="/lernen" className="hover:text-slate-200 transition-colors">Academy</Link>
-              <Link href="/wiki/mcp" className="hover:text-slate-200 transition-colors">Lexikon</Link>
-=======
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 gap-4">
-            <a href="/" className="flex items-center gap-2 font-semibold text-slate-100 hover:text-white transition-colors shrink-0">
-              <span className="text-blue-400 text-lg">⬡</span>
-              <span>What&apos;s in it?</span>
-            </a>
             <HeaderSearch />
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <a href="/lernen" className="hidden sm:inline hover:text-slate-200 transition-colors">Academy</a>
-              <a href="/wiki/mcp" className="hidden sm:inline hover:text-slate-200 transition-colors">Lexikon</a>
+              <Link href="/lernen" className="hidden sm:inline hover:text-slate-200 transition-colors">Academy</Link>
+              <Link href="/wiki/mcp" className="hidden sm:inline hover:text-slate-200 transition-colors">Lexikon</Link>
               <ThemeToggle />
->>>>>>> ff16368 (Meine Änderung)
             </div>
           </div>
         </nav>

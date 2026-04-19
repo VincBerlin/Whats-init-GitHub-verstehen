@@ -1,21 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { searchTerms, type SearchTerm } from "@/lib/search-terms";
 
 export default function HeaderSearch() {
   const router = useRouter();
   const [value, setValue] = useState("");
   const [open, setOpen] = useState(false);
-  const [results, setResults] = useState<SearchTerm[]>([]);
   const [activeIdx, setActiveIdx] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setResults(searchTerms(value));
-    setActiveIdx(0);
-  }, [value]);
+  const results = useMemo(() => searchTerms(value), [value]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -31,6 +27,7 @@ export default function HeaderSearch() {
     router.push(term.url);
     setValue("");
     setOpen(false);
+    setActiveIdx(0);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -43,7 +40,7 @@ export default function HeaderSearch() {
       setActiveIdx((i) => (i - 1 + results.length) % results.length);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      go(results[activeIdx]);
+      go(results[Math.min(activeIdx, results.length - 1)]);
     } else if (e.key === "Escape") {
       setOpen(false);
     }
@@ -65,7 +62,11 @@ export default function HeaderSearch() {
       </svg>
       <input
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+          setOpen(true);
+          setActiveIdx(0);
+        }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         type="text"
