@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const TOC_ITEMS = [
@@ -71,6 +72,27 @@ export default function Sidebar() {
             </button>
           ))}
         </nav>
+      </div>
+
+      {/* Learn & Wiki shortcuts */}
+      <div className="rounded-xl border border-slate-700/60 bg-slate-800/30 p-4">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          Mehr entdecken
+        </p>
+        <div className="space-y-2">
+          <Link
+            href="/wiki/mcp"
+            className="block text-sm px-3 py-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition-all"
+          >
+            Lexikon öffnen
+          </Link>
+          <Link
+            href="/lernen"
+            className="block text-sm px-3 py-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition-all"
+          >
+            Zur Academy
+          </Link>
+        </div>
       </div>
 
       {/* Ad Slot 300×600 */}

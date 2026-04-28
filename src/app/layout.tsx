@@ -42,9 +42,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>What&apos;s in it?</span>
             </Link>
             <HeaderSearch />
-            <div className="flex items-center gap-6 text-sm text-slate-400">
-              <Link href="/lernen" className="hidden sm:inline hover:text-slate-200 transition-colors">Academy</Link>
-              <Link href="/wiki/mcp" className="hidden sm:inline hover:text-slate-200 transition-colors">Lexikon</Link>
+            <div className="flex items-center gap-3 sm:gap-6 text-sm text-slate-400">
+              <Link href="/lernen" className="inline-flex hover:text-slate-200 transition-colors">Academy</Link>
+              <div className="relative group">
+                <Link href="/wiki/mcp" className="inline-flex hover:text-slate-200 transition-colors">
+                  Lexikon
+                </Link>
+                <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-slate-700/60 bg-slate-900 shadow-xl p-2 hidden group-hover:block">
+                  <p className="px-2 py-1 text-[11px] uppercase tracking-wide text-slate-500">Wiki</p>
+                  <Link href="/wiki/mcp" className="block rounded-md px-2 py-2 text-sm text-slate-300 hover:bg-slate-800">MCP</Link>
+                  <Link href="/wiki/claude-desktop" className="block rounded-md px-2 py-2 text-sm text-slate-300 hover:bg-slate-800">Claude Desktop</Link>
+                  <Link href="/wiki/npm" className="block rounded-md px-2 py-2 text-sm text-slate-300 hover:bg-slate-800">npm</Link>
+                  <Link href="/wiki/agent" className="block rounded-md px-2 py-2 text-sm text-slate-300 hover:bg-slate-800">Autonomer Agent</Link>
+                </div>
+              </div>
               <ThemeToggle />
             </div>
           </div>
