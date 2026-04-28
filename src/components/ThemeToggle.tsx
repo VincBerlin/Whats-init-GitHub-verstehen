@@ -4,27 +4,27 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
+const getInitialTheme = (): Theme => {
+  if (typeof window === "undefined") {
+    return "dark";
+  }
+
+  const stored = localStorage.getItem("theme");
+  return stored === "light" || stored === "dark" ? stored : "dark";
+};
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    setMounted(true);
-    const stored = (localStorage.getItem("theme") as Theme | null) ?? "dark";
-    setTheme(stored);
-  }, []);
+    localStorage.setItem("theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.classList.toggle("light", theme === "light");
+  }, [theme]);
 
   const toggle = () => {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    localStorage.setItem("theme", next);
-    document.documentElement.classList.toggle("dark", next === "dark");
-    document.documentElement.classList.toggle("light", next === "light");
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
   };
-
-  if (!mounted) {
-    return <div className="w-8 h-8" aria-hidden />;
-  }
 
   return (
     <button

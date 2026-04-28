@@ -1,31 +1,22 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
 import { searchTerms, type SearchTerm } from "@/lib/search-terms";
 
 export default function HeaderSearch() {
   const router = useRouter();
   const [value, setValue] = useState("");
   const [open, setOpen] = useState(false);
-  const [results, setResults] = useState<SearchTerm[]>([]);
   const [activeIdx, setActiveIdx] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setResults(searchTerms(value));
-    setActiveIdx(0);
-  }, [value]);
+  const results = useMemo(() => searchTerms(value), [value]);
 
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
+  const onValueChange = (nextValue: string) => {
+    setValue(nextValue);
+    setActiveIdx(0);
+  };
 
   const go = (term: SearchTerm) => {
     router.push(term.url);
@@ -49,6 +40,17 @@ export default function HeaderSearch() {
     }
   };
 
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
   const showDropdown = open && value.trim().length > 0;
 
   return (
@@ -65,7 +67,7 @@ export default function HeaderSearch() {
       </svg>
       <input
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => onValueChange(e.target.value)}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         type="text"
