@@ -32,7 +32,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">{themeInitScript}</Script>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
       </head>
       <body className="min-h-screen antialiased">
         <nav className="border-b border-slate-800/60 backdrop-blur-sm sticky top-0 z-50 bg-slate-950/80">
