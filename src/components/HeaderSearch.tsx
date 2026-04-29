@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { searchTerms, type SearchTerm } from "@/lib/search-terms";
 
 export default function HeaderSearch() {
@@ -22,6 +23,7 @@ export default function HeaderSearch() {
     router.push(term.url);
     setValue("");
     setOpen(false);
+    setActiveIdx(0);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -34,7 +36,7 @@ export default function HeaderSearch() {
       setActiveIdx((i) => (i - 1 + results.length) % results.length);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      go(results[activeIdx]);
+      go(results[Math.min(activeIdx, results.length - 1)]);
     } else if (e.key === "Escape") {
       setOpen(false);
     }
@@ -67,7 +69,11 @@ export default function HeaderSearch() {
       </svg>
       <input
         value={value}
-        onChange={(e) => onValueChange(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+          setOpen(true);
+          setActiveIdx(0);
+        }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         type="text"

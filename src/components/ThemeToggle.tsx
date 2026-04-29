@@ -1,30 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 
-const getInitialTheme = (): Theme => {
-  if (typeof window === "undefined") {
-    return "dark";
-  }
-
-  const stored = localStorage.getItem("theme");
-  return stored === "light" || stored === "dark" ? stored : "dark";
-};
+const subscribe = () => () => {};
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "dark";
+    const stored = localStorage.getItem("theme");
+    return stored === "light" || stored === "dark" ? stored : "dark";
+  });
 
   useEffect(() => {
-    localStorage.setItem("theme", theme);
     document.documentElement.classList.toggle("dark", theme === "dark");
     document.documentElement.classList.toggle("light", theme === "light");
   }, [theme]);
 
   const toggle = () => {
-    setTheme((current) => (current === "dark" ? "light" : "dark"));
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
   };
+
+  if (!isHydrated) {
+    return <div className="w-8 h-8" aria-hidden />;
+  }
 
   return (
     <button
