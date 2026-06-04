@@ -7,9 +7,13 @@ import type {
   AnalysisLockStore,
   LockResult,
   NewAnalysisCacheRecord,
+  RepoSnapshot,
+  SnapshotStore,
   UsageEvent,
   UsageEventStore,
   UsageEventType,
+  WeeklyTopRepository,
+  WeeklyTopStore,
 } from "../ports";
 
 function toRecord(row: QueryResultRow): AnalysisCacheRecord {
@@ -151,5 +155,105 @@ export class PgAnalysisLockStore implements AnalysisLockStore {
       "UPDATE analysis_locks SET status = 'failed', error_code = $3 WHERE repo_key = $1 AND lock_id = $2",
       [repoKey, lockId, errorCode],
     );
+  }
+}
+
+function toSnapshot(row: QueryResultRow): RepoSnapshot {
+  return {
+    repo_key: row.repo_key,
+    owner: row.owner,
+    repo: row.repo,
+    stars: Number(row.stars),
+    forks: Number(row.forks),
+    open_issues: row.open_issues == null ? null : Number(row.open_issues),
+    language: row.language ?? null,
+    pushed_at: row.pushed_at ? new Date(row.pushed_at).toISOString() : null,
+    snapshot_date: typeof row.snapshot_date === "string" ? row.snapshot_date : new Date(row.snapshot_date).toISOString().slice(0, 10),
+  };
+}
+
+export class PgSnapshotStore implements SnapshotStore {
+  constructor(private pool: Pool) {}
+
+  async upsert(s: RepoSnapshot): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO repo_snapshots (repo_key, owner, repo, stars, forks, open_issues, language, pushed_at, snapshot_date)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (repo_key, snapshot_date) DO UPDATE SET
+         stars = EXCLUDED.stars, forks = EXCLUDED.forks, open_issues = EXCLUDED.open_issues,
+         language = EXCLUDED.language, pushed_at = EXCLUDED.pushed_at`,
+      [s.repo_key, s.owner, s.repo, s.stars, s.forks, s.open_issues, s.language, s.pushed_at, s.snapshot_date],
+    );
+  }
+
+  async getPrevious(repoKey: string, beforeDate: string): Promise<RepoSnapshot | null> {
+    const { rows } = await this.pool.query(
+      "SELECT * FROM repo_snapshots WHERE repo_key = $1 AND snapshot_date < $2 ORDER BY snapshot_date DESC LIMIT 1",
+      [repoKey, beforeDate],
+    );
+    return rows[0] ? toSnapshot(rows[0]) : null;
+  }
+
+  async getByDate(snapshotDate: string): Promise<RepoSnapshot[]> {
+    const { rows } = await this.pool.query("SELECT * FROM repo_snapshots WHERE snapshot_date = $1", [snapshotDate]);
+    return rows.map(toSnapshot);
+  }
+}
+
+function toWeekly(row: QueryResultRow): WeeklyTopRepository {
+  const d = (v: unknown) => (typeof v === "string" ? v : new Date(v as string).toISOString().slice(0, 10));
+  return {
+    week_start: d(row.week_start),
+    week_end: d(row.week_end),
+    rank: Number(row.rank),
+    repo_key: row.repo_key,
+    owner: row.owner,
+    repo: row.repo,
+    github_url: row.github_url,
+    description: row.description ?? null,
+    language: row.language ?? null,
+    stars: Number(row.stars),
+    forks: Number(row.forks),
+    stars_delta: Number(row.stars_delta),
+    forks_delta: Number(row.forks_delta),
+    weekly_score: Number(row.weekly_score),
+    reason: row.reason,
+  };
+}
+
+export class PgWeeklyTopStore implements WeeklyTopStore {
+  constructor(private pool: Pool) {}
+
+  async replaceWeek(weekStart: string, weekEnd: string, items: WeeklyTopRepository[]): Promise<void> {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query("DELETE FROM weekly_top_repositories WHERE week_start = $1", [weekStart]);
+      for (const it of items) {
+        await client.query(
+          `INSERT INTO weekly_top_repositories
+            (week_start, week_end, rank, repo_key, owner, repo, github_url, description, language,
+             stars, forks, stars_delta, forks_delta, weekly_score, reason)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+          [weekStart, weekEnd, it.rank, it.repo_key, it.owner, it.repo, it.github_url, it.description, it.language,
+            it.stars, it.forks, it.stars_delta, it.forks_delta, it.weekly_score, it.reason],
+        );
+      }
+      await client.query("COMMIT");
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getLatestWeek(): Promise<WeeklyTopRepository[]> {
+    const { rows } = await this.pool.query(
+      `SELECT * FROM weekly_top_repositories
+       WHERE week_start = (SELECT max(week_start) FROM weekly_top_repositories)
+       ORDER BY rank`,
+    );
+    return rows.map(toWeekly);
   }
 }

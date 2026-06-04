@@ -1,4 +1,9 @@
 import { redirect } from "next/navigation";
+import WeeklyTopRepos from "@/components/WeeklyTopRepos";
+
+// ISR: revalidate hourly so the Weekly Top 10 reflects DB updates without a
+// live GitHub fetch or LLM call on each view (NFR-001).
+export const revalidate = 3600;
 
 async function handleSubmit(formData: FormData) {
   "use server";
@@ -68,6 +73,11 @@ export default function HomePage() {
             <div className="text-slate-500 text-xs leading-relaxed">{f.desc}</div>
           </div>
         ))}
+      </div>
+
+      {/* Weekly Top 10 (PHASE-5) — stored data, no live GitHub / no LLM */}
+      <div className="mt-24">
+        <WeeklyTopRepos />
       </div>
     </div>
   );

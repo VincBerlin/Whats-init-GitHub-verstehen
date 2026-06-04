@@ -75,6 +75,52 @@ export interface UsageEventStore {
   countRecent(ipHash: string, eventTypes: UsageEventType[], windowMs: number): Promise<number>;
 }
 
+// PHASE-5 — trending snapshots & weekly ranking (DATA-005, DATA-006).
+export interface RepoSnapshot {
+  repo_key: string;
+  owner: string;
+  repo: string;
+  stars: number;
+  forks: number;
+  open_issues: number | null;
+  language: string | null;
+  pushed_at: string | null;
+  snapshot_date: string; // YYYY-MM-DD
+}
+
+export interface WeeklyTopRepository {
+  week_start: string;
+  week_end: string;
+  rank: number;
+  repo_key: string;
+  owner: string;
+  repo: string;
+  github_url: string;
+  description: string | null;
+  language: string | null;
+  stars: number;
+  forks: number;
+  stars_delta: number;
+  forks_delta: number;
+  weekly_score: number;
+  reason: string;
+}
+
+export interface SnapshotStore {
+  upsert(snapshot: RepoSnapshot): Promise<void>;
+  /** Latest snapshot for repoKey strictly before the given date (for deltas). */
+  getPrevious(repoKey: string, beforeDate: string): Promise<RepoSnapshot | null>;
+  /** All snapshots recorded on a given date. */
+  getByDate(snapshotDate: string): Promise<RepoSnapshot[]>;
+}
+
+export interface WeeklyTopStore {
+  /** Idempotent: replace all rows for a week (unique week_start, rank). */
+  replaceWeek(weekStart: string, weekEnd: string, items: WeeklyTopRepository[]): Promise<void>;
+  /** Rows for the most recent week_start, ordered by rank. */
+  getLatestWeek(): Promise<WeeklyTopRepository[]>;
+}
+
 export type LockResult = "acquired" | "in_progress";
 
 export interface AnalysisLockStore {

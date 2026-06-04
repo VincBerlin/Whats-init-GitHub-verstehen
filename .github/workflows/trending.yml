@@ -1,0 +1,39 @@
+name: Trending Jobs
+
+# PHASE-5 — scheduled snapshot + weekly ranking jobs (API-005 / API-006).
+# Requires repository secrets: APP_URL (e.g. https://whatsinit.app), CRON_SECRET.
+# No OpenRouter is ever called by these jobs (FR-018).
+
+on:
+  schedule:
+    # Daily snapshot at 03:00 UTC; weekly ranking Mondays at 03:30 UTC.
+    - cron: "0 3 * * *"
+    - cron: "30 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  snapshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update trending snapshots
+        run: |
+          curl -fsS -X POST "$APP_URL/api/jobs/update-trending-snapshots" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" -d '{}'
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+  weekly:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '30 3 * * 1' || github.event_name == 'workflow_dispatch'
+    needs: snapshots
+    steps:
+      - name: Update weekly trending
+        run: |
+          curl -fsS -X POST "$APP_URL/api/jobs/update-weekly-trending" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" -d '{}'
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

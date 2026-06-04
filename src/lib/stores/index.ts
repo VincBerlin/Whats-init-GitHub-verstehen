@@ -1,18 +1,34 @@
 // Store factory: production uses Postgres; without DATABASE_URL falls back to
 // in-memory (local dev only — not persistent). Tests inject stores directly.
 import { getPool, hasDatabase } from "../db";
-import type { AnalysisCacheStore, AnalysisLockStore, UsageEventStore } from "../ports";
+import type {
+  AnalysisCacheStore,
+  AnalysisLockStore,
+  SnapshotStore,
+  UsageEventStore,
+  WeeklyTopStore,
+} from "../ports";
 import {
   MemoryAnalysisCacheStore,
   MemoryAnalysisLockStore,
+  MemorySnapshotStore,
   MemoryUsageEventStore,
+  MemoryWeeklyTopStore,
 } from "./memory-stores";
-import { PgAnalysisCacheStore, PgAnalysisLockStore, PgUsageEventStore } from "./pg-stores";
+import {
+  PgAnalysisCacheStore,
+  PgAnalysisLockStore,
+  PgSnapshotStore,
+  PgUsageEventStore,
+  PgWeeklyTopStore,
+} from "./pg-stores";
 
 export interface Stores {
   cache: AnalysisCacheStore;
   usage: UsageEventStore;
   lock: AnalysisLockStore;
+  snapshots: SnapshotStore;
+  weeklyTop: WeeklyTopStore;
 }
 
 let singleton: Stores | null = null;
@@ -27,6 +43,8 @@ export function getStores(): Stores {
       cache: new PgAnalysisCacheStore(pool),
       usage: new PgUsageEventStore(pool),
       lock: new PgAnalysisLockStore(pool),
+      snapshots: new PgSnapshotStore(pool),
+      weeklyTop: new PgWeeklyTopStore(pool),
     };
   } else {
     if (!warnedDevFallback && process.env.NODE_ENV !== "test") {
@@ -40,6 +58,8 @@ export function getStores(): Stores {
       cache: new MemoryAnalysisCacheStore(),
       usage: new MemoryUsageEventStore(),
       lock: new MemoryAnalysisLockStore(),
+      snapshots: new MemorySnapshotStore(),
+      weeklyTop: new MemoryWeeklyTopStore(),
     };
   }
   return singleton;
