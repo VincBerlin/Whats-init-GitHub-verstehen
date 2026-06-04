@@ -70,7 +70,7 @@ export default function HeaderSearch() {
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         type="text"
-        placeholder="Academy & Lexikon durchsuchen…"
+        placeholder="Git & GitHub durchsuchen…"
         className="w-full bg-slate-900/60 border border-slate-700/60 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 transition-all"
       />
 

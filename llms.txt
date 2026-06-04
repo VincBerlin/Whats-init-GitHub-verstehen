@@ -1,0 +1,21 @@
+# What's in it?
+
+> Free, ad-financed German GitHub Repository Intelligence & Knowledge Hub.
+> No accounts, no paywall. Repo analysis via OpenRouter (Gemini) on cache miss only;
+> static Git/GitHub knowledge and Weekly Top 10 never call an LLM.
+
+## Context
+- [PRD (source of truth)](docs/prd/whats-in-it-live-ready-full.prd.md)
+- [Agent rules](AGENTS.md)
+- [Implementation notes](CLAUDE.md)
+- [Architecture](docs/ARCHITECTURE.md)
+
+## Key routes
+- `/` repository URL input + Weekly Top 10
+- `/analyse/[owner]/[repo]` cached/new analysis
+- `/github` Git & GitHub knowledge hub
+- `/github/shortcuts`, `/github/commands`, `/github/cli`, `/github/actions`, `/github/[slug]`
+
+## Rules
+- Cache before OpenRouter. One LLM call per repo_key under concurrency.
+- No raw LLM HTML. Secrets server-side only.

@@ -43,8 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <HeaderSearch />
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <Link href="/lernen" className="hidden sm:inline hover:text-slate-200 transition-colors">Academy</Link>
-              <Link href="/wiki/mcp" className="hidden sm:inline hover:text-slate-200 transition-colors">Lexikon</Link>
+              <Link href="/github" className="hidden sm:inline hover:text-slate-200 transition-colors">Git &amp; GitHub</Link>
+              <Link href="/github/shortcuts" className="hidden sm:inline hover:text-slate-200 transition-colors">Shortcuts</Link>
               <ThemeToggle />
             </div>
           </div>

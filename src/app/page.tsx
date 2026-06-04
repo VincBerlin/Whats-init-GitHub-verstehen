@@ -60,7 +60,7 @@ export default function HomePage() {
         {[
           { icon: "⚡", title: "Sofort-Analyse", desc: "Kategorie, Nutzen und Risiken auf einen Blick." },
           { icon: "🤖", title: "KI-Befehle", desc: "Fertige Prompts für Claude & Cursor zur Integration." },
-          { icon: "📚", title: "Academy", desc: "Git-Befehle, Konzepte und Tech-Lexikon." },
+          { icon: "📚", title: "Git & GitHub", desc: "Befehle, Workflows und Shortcuts zum Kopieren." },
         ].map((f) => (
           <div key={f.title} className="bg-slate-900/60 border border-slate-800/60 rounded-xl p-5 hover:border-slate-700/60 transition-colors">
             <div className="text-2xl mb-3">{f.icon}</div>

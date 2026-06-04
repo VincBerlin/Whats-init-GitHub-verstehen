@@ -6,41 +6,22 @@ export interface SearchTerm {
   keywords: string[];
 }
 
+// PHASE-1: Suchindex zeigt auf den neuen /github-Hub. Die vollständige,
+// datengetriebene Suche über die Wissensmodule folgt in PHASE-4.
 export const SEARCH_TERMS: SearchTerm[] = [
   {
-    title: "Model Context Protocol (MCP)",
-    description: "Offener Standard von Anthropic, der KI-Modelle mit Tools verbindet.",
-    url: "/wiki/mcp",
-    category: "Lexikon",
-    keywords: ["mcp", "model context protocol", "anthropic", "tools"],
-  },
-  {
-    title: "Claude Desktop",
-    description: "Die native App von Anthropic mit MCP-Unterstützung.",
-    url: "/wiki/claude-desktop",
-    category: "Lexikon",
-    keywords: ["claude", "desktop", "anthropic", "app"],
-  },
-  {
-    title: "npm — Node Package Manager",
-    description: "Der Standard-Paketmanager für JavaScript und Node.js.",
-    url: "/wiki/npm",
-    category: "Lexikon",
-    keywords: ["npm", "node", "package manager", "javascript"],
-  },
-  {
-    title: "Autonomer Agent",
-    description: "KI-Systeme, die selbstständig mehrstufige Aufgaben ausführen.",
-    url: "/wiki/agent",
-    category: "Lexikon",
-    keywords: ["agent", "autonom", "ki", "ai"],
-  },
-  {
-    title: "Academy — Überblick",
-    description: "Alle Lernthemen auf einen Blick.",
-    url: "/lernen",
+    title: "Git & GitHub — Wissens-Hub",
+    description: "Befehle, Workflows und Shortcuts auf einen Blick.",
+    url: "/github",
     category: "Academy",
-    keywords: ["academy", "lernen", "kurse", "tutorials"],
+    keywords: ["git", "github", "befehle", "commands", "hilfe", "wissen"],
+  },
+  {
+    title: "Shortcuts & Workflows",
+    description: "Fertige Terminal-Abläufe zum Kopieren.",
+    url: "/github/shortcuts",
+    category: "Academy",
+    keywords: ["shortcut", "workflow", "terminal", "push", "pull", "clone"],
   },
 ];
 
