@@ -1,4 +1,5 @@
 import { AnalysisResult, GitHubRepo } from "@/types/analysis";
+import { AnalyzerError, type AnalyzerPort } from "./analyzer-port";
 
 // Simple in-memory cache — replace with Redis/Vercel KV in production
 const cache = new Map<string, { data: AnalysisResult; ts: number }>();
@@ -212,3 +213,70 @@ ${readme || "kein README gefunden"}`;
 export async function fetchGitHubMeta(owner: string, repo: string): Promise<GitHubRepo> {
   return fetchGitHubData(owner, repo);
 }
+
+// PHASE-2 bridge: expose the GitHub-fetch + LLM step as a clean function that
+// throws typed AnalyzerError codes, so the cache-first service can wrap it via
+// the AnalyzerPort. PHASE-3 replaces the Gemini call with the OpenRouter adapter.
+export const ANALYZER_VERSION = "gemini-direct-v1";
+
+export async function analyzeForPort(
+  owner: string,
+  repo: string,
+): Promise<{ analysis: AnalysisResult; repoMetadata: GitHubRepo; model: string; provider: string; analyzerVersion: string }> {
+  let ghData: GitHubRepo;
+  let readme: string;
+  try {
+    [ghData, readme] = await Promise.all([fetchGitHubData(owner, repo), fetchReadme(owner, repo)]);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new AnalyzerError(msg.includes("404") ? "github_not_found" : "github_fetch_failed", msg);
+  }
+
+  const userMessage = `Repository: ${ghData.full_name}
+Beschreibung: ${ghData.description || "keine"}
+Stars: ${ghData.stargazers_count.toLocaleString()}
+Sprache: ${ghData.language || "unbekannt"}
+Topics: ${(ghData.topics || []).join(", ") || "keine"}
+Lizenz: ${ghData.license?.name || "unbekannt"}
+Clone URL: ${ghData.clone_url}
+
+README (Auszug):
+${readme || "kein README gefunden"}`;
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new AnalyzerError("llm_failed", "GEMINI_API_KEY not set");
+
+  let rawText: string;
+  try {
+    const llmRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts: [{ text: userMessage }] }],
+          generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json" },
+        }),
+      },
+    );
+    if (!llmRes.ok) throw new Error(await llmRes.text());
+    const llmData = await llmRes.json();
+    rawText = llmData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  } catch (err) {
+    throw new AnalyzerError("llm_failed", err instanceof Error ? err.message : String(err));
+  }
+
+  let analysis: AnalysisResult;
+  try {
+    analysis = parseAnalysisResult(rawText);
+  } catch (err) {
+    throw new AnalyzerError("validation_failed", err instanceof Error ? err.message : String(err));
+  }
+
+  return { analysis, repoMetadata: ghData, model: "google/gemini-2.5-flash", provider: "gemini-direct", analyzerVersion: ANALYZER_VERSION };
+}
+
+export const geminiAnalyzer: AnalyzerPort = {
+  analyze: (repo) => analyzeForPort(repo.owner, repo.repo),
+};
