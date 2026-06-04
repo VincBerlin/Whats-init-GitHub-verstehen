@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 
 const TOC_ITEMS = [
-  { id: "overview",       label: "Übersicht" },
-  { id: "recommendation", label: "Empfehlung" },
-  { id: "installation",   label: "Installation" },
-  { id: "ai-prompts",     label: "KI-Befehle" },
-  { id: "deep-dive",      label: "Deep Dive" },
-  { id: "related-topics", label: "Verwandte Begriffe" },
+  { id: "overview",     label: "Übersicht" },
+  { id: "quality",      label: "Qualität" },
+  { id: "usecases",     label: "Einsatz" },
+  { id: "concerns",     label: "Hinweise" },
+  { id: "installation", label: "Installation" },
+  { id: "commands",     label: "Befehle" },
+  { id: "ai-prompts",   label: "KI-Befehle" },
+  { id: "faq",          label: "FAQ" },
 ];
 
 export default function Sidebar() {

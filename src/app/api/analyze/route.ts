@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { geminiAnalyzer } from "@/lib/analyze";
+import { openRouterAnalyzer } from "@/lib/openrouter";
 import { runAnalysis } from "@/lib/analysis-service";
 import { extractClientContext } from "@/lib/request-context";
 import { getStores } from "@/lib/stores";
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   const result = await runAnalysis(
     { input, client },
-    { stores: getStores(), analyzer: geminiAnalyzer },
+    { stores: getStores(), analyzer: openRouterAnalyzer },
   );
 
   if (result.status === "analysis_in_progress") {

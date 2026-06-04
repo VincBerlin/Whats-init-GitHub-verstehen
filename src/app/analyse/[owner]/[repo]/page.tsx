@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { geminiAnalyzer } from "@/lib/analyze";
+import { openRouterAnalyzer } from "@/lib/openrouter";
 import { runAnalysis } from "@/lib/analysis-service";
 import { extractClientContext } from "@/lib/request-context";
 import { getStores } from "@/lib/stores";
@@ -36,7 +36,7 @@ export default async function AnalysePage({ params }: PageProps) {
   const client = extractClientContext(await headers());
   const result = await runAnalysis(
     { input: `${owner}/${repo}`, client },
-    { stores: getStores(), analyzer: geminiAnalyzer },
+    { stores: getStores(), analyzer: openRouterAnalyzer },
   );
 
   if (result.status === "analysis_in_progress") {
@@ -87,7 +87,6 @@ export default async function AnalysePage({ params }: PageProps) {
             data={analysis}
             owner={owner}
             repo={repo}
-            stars={ghData.stargazers_count}
             avatarUrl={ghData.owner.avatar_url}
           />
         </div>
