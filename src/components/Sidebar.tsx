@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AdSlot from "./AdSlot";
 
 const TOC_ITEMS = [
   { id: "overview",     label: "Übersicht" },
@@ -75,22 +76,8 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Ad Slot 300×600 */}
-      <div
-        className="rounded-xl border border-slate-700/40 bg-slate-800/20 overflow-hidden"
-        style={{ width: "300px", height: "600px", maxWidth: "100%" }}
-        aria-label="Werbeanzeige"
-      >
-        {/* Replace with real AdSense slot in production */}
-        {/* <ins className="adsbygoogle" ... /> */}
-        <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-700">
-          <svg className="w-8 h-8 opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="2" y="3" width="20" height="18" rx="2" strokeWidth="1.5" />
-            <line x1="2" y1="9" x2="22" y2="9" strokeWidth="1.5" />
-          </svg>
-          <span className="text-xs opacity-40">Ad 300×600</span>
-        </div>
-      </div>
+      {/* Ad slot — sidebar zone, separated from copy/CTA buttons (FR-021) */}
+      <AdSlot placement="sidebar" width={300} height={600} />
     </aside>
   );
 }

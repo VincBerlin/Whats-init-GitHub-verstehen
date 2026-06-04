@@ -51,6 +51,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </nav>
         <main>{children}</main>
         <footer className="border-t border-slate-800/60 mt-24 py-8 text-center text-slate-600 text-sm">
+          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-4 text-slate-500">
+            <Link href="/github" className="hover:text-slate-300 transition-colors">Git &amp; GitHub</Link>
+            <Link href="/github/trending" className="hover:text-slate-300 transition-colors">Weekly Top 10</Link>
+            <Link href="/about" className="hover:text-slate-300 transition-colors">Über uns</Link>
+            <Link href="/contact" className="hover:text-slate-300 transition-colors">Kontakt</Link>
+            <Link href="/privacy" className="hover:text-slate-300 transition-colors">Datenschutz</Link>
+            <Link href="/terms" className="hover:text-slate-300 transition-colors">Nutzungsbedingungen</Link>
+            <Link href="/impressum" className="hover:text-slate-300 transition-colors">Impressum</Link>
+          </nav>
           <p>What&apos;s in it? — GitHub verstehen, schneller als je zuvor.</p>
         </footer>
       </body>
