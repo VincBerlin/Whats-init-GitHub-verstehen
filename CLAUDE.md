@@ -15,7 +15,7 @@ renders a typed result. It also offers a static Git/GitHub knowledge hub and a W
 
 ```bash
 npm run dev      # Dev server (localhost:3000)
-npm run build    # Production build (Turbopack, output: "standalone")
+npm run build    # Production build (Turbopack)
 npm run start    # Run production build
 npm run lint     # ESLint (flat config)
 npm test         # Vitest (run mode)

@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // No "output: standalone": Railway (NIXPACKS) deploys via `npm run start`
+  // (= `next start`), which is the canonical, fully-supported start command and
+  // keeps node_modules. Standalone output is incompatible with `next start`.
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
