@@ -60,12 +60,26 @@ describe("no LLM dependency in knowledge surface", () => {
     return out;
   }
 
-  it("contains no openrouter import in src/data or src/app/github", () => {
-    const files = [...scan(join(process.cwd(), "src/data")), ...scan(join(process.cwd(), "src/app/github"))];
-    // Match actual import/require of the OpenRouter adapter, not prose in comments.
-    const importRe = /(?:import[^;]*from\s*['"][^'"]*openrouter|require\(\s*['"][^'"]*openrouter)/i;
+  // Discovery (Daily/Weekly/Niche), knowledge data and the /github + jobs surface
+  // must never import the OpenRouter adapter (FR-018, NOGOAL-001).
+  const importRe = /(?:import[^;]*from\s*['"][^'"]*openrouter|require\(\s*['"][^'"]*openrouter)/i;
+
+  it("contains no openrouter import in data/github/discovery surface", () => {
+    const files = [
+      ...scan(join(process.cwd(), "src/data")),
+      ...scan(join(process.cwd(), "src/app/github")),
+      ...scan(join(process.cwd(), "src/lib/discovery")),
+      ...scan(join(process.cwd(), "src/app/api/jobs")),
+    ];
     for (const f of files) {
       const content = readFileSync(f, "utf8");
+      expect(importRe.test(content), `${f} must not import openrouter`).toBe(false);
+    }
+  });
+
+  it("trending + weekly-data + knowledge-search do not import openrouter", () => {
+    for (const f of ["src/lib/trending.ts", "src/lib/weekly-data.ts", "src/lib/knowledge-search.ts"]) {
+      const content = readFileSync(join(process.cwd(), f), "utf8");
       expect(importRe.test(content), `${f} must not import openrouter`).toBe(false);
     }
   });
