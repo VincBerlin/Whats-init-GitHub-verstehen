@@ -1,7 +1,7 @@
 // PHASE-1 / FR-002, FR-014 — knowledge search over static data. No LLM, no
 // external API (ARCH-007). PHASE-4 enriches with tags/synonyms.
-import { KNOWLEDGE_ITEMS } from "@/data/github-knowledge";
 import { WORKFLOWS } from "@/data/git-workflows";
+import { ENRICHED_TOPICS } from "@/lib/knowledge-taxonomy";
 import type { CommandWorkflow, GitHubKnowledgeItem } from "@/types/knowledge";
 
 export interface KnowledgeSearchResult {
@@ -23,10 +23,10 @@ export function searchKnowledge(query: string): KnowledgeSearchResult {
   if (!q) return { knowledge: [], workflows: [] };
   const terms = q.split(/\s+/).filter(Boolean);
 
-  const knowledge = KNOWLEDGE_ITEMS.map((k) => ({
-    item: k,
+  const knowledge = ENRICHED_TOPICS.map((k) => ({
+    item: k as GitHubKnowledgeItem,
     s: score(
-      `${k.title} ${k.slug} ${k.category}`.toLowerCase(),
+      `${k.title} ${k.slug} ${k.category} ${k.searchSynonyms.join(" ")} ${k.tags.join(" ")}`.toLowerCase(),
       `${k.age16Summary} ${k.expertExplanation} ${k.whenToUse.join(" ")}`.toLowerCase(),
       terms,
     ),

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { KNOWLEDGE_ITEMS, getKnowledgeItem } from "@/data/github-knowledge";
+import { enrich, RISK_BADGE } from "@/lib/knowledge-taxonomy";
 import CommandBlock from "@/components/CommandBlock";
 
 interface PageProps {
@@ -36,7 +37,13 @@ export default async function KnowledgeDetailPage({ params }: PageProps) {
         <Link href="/github" className="hover:text-slate-300">Git &amp; GitHub</Link> <span className="mx-1">/</span> {item.title}
       </nav>
 
-      <h1 className="text-3xl font-bold text-slate-100 mb-6">{item.title}</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-3xl font-bold text-slate-100">{item.title}</h1>
+        {(() => {
+          const badge = RISK_BADGE[enrich(item).riskLevel];
+          return badge ? <span className={`text-xs px-2 py-0.5 rounded-full border ${badge.cls}`}>{badge.text}</span> : null;
+        })()}
+      </div>
 
       <section className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-5 mb-8">
         <p className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2">Einfach erklärt</p>
