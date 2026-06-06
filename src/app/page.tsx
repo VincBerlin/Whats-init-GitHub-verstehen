@@ -1,15 +1,19 @@
 import { redirect } from "next/navigation";
 import WeeklyTopRepos from "@/components/WeeklyTopRepos";
+import { parseRepoInput } from "@/lib/repo-normalize";
 
 // ISR: revalidate hourly so the Weekly Top 10 reflects DB updates without a
 // live GitHub fetch or LLM call on each view (NFR-001).
 export const revalidate = 3600;
 
+// FR-001/FR-002: a GitHub URL or owner/repo → analysis; anything else → knowledge search.
 async function handleSubmit(formData: FormData) {
   "use server";
-  const url = formData.get("url") as string;
-  const match = url?.match(/github\.com\/([^/]+)\/([^/?\s#]+)/);
-  if (match) redirect(`/analyse/${match[1]}/${match[2]}`);
+  const raw = ((formData.get("url") as string) ?? "").trim();
+  if (!raw) return; // empty: input is `required`, browser blocks submit
+  const parsed = parseRepoInput(raw);
+  if (parsed.ok) redirect(`/analyse/${parsed.value.owner}/${parsed.value.repo}`);
+  redirect(`/github/search?q=${encodeURIComponent(raw)}`);
 }
 
 export default function HomePage() {
@@ -38,7 +42,7 @@ export default function HomePage() {
         <input
           name="url"
           type="text"
-          placeholder="https://github.com/owner/repo"
+          placeholder="Repository (owner/repo) oder Begriff (z. B. git push)"
           className="flex-1 bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-3.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 text-sm transition-all"
           autoComplete="off"
           required
@@ -60,20 +64,8 @@ export default function HomePage() {
         ))}
       </p>
 
-      {/* Feature pills */}
-      <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-        {[
-          { icon: "⚡", title: "Sofort-Analyse", desc: "Kategorie, Nutzen und Risiken auf einen Blick." },
-          { icon: "🤖", title: "KI-Befehle", desc: "Fertige Prompts für Claude & Cursor zur Integration." },
-          { icon: "📚", title: "Git & GitHub", desc: "Befehle, Workflows und Shortcuts zum Kopieren." },
-        ].map((f) => (
-          <div key={f.title} className="bg-slate-900/60 border border-slate-800/60 rounded-xl p-5 hover:border-slate-700/60 transition-colors">
-            <div className="text-2xl mb-3">{f.icon}</div>
-            <div className="font-semibold text-slate-200 text-sm mb-1">{f.title}</div>
-            <div className="text-slate-500 text-xs leading-relaxed">{f.desc}</div>
-          </div>
-        ))}
-      </div>
+      {/* PHASE-1: dead mockup feature cards removed (FR-004).
+          Discovery (Daily/Weekly/Niche) lives below — real data, no LLM. */}
 
       {/* Weekly Top 10 (PHASE-5) — stored data, no live GitHub / no LLM */}
       <div className="mt-24">
