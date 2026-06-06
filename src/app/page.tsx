@@ -1,12 +1,10 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import DailyTopRepos from "@/components/DailyTopRepos";
 import WeeklyTopRepos from "@/components/WeeklyTopRepos";
 import NicheFinds from "@/components/NicheFinds";
 import { parseRepoInput } from "@/lib/repo-normalize";
-
-// ISR: revalidate hourly so the Weekly Top 10 reflects DB updates without a
-// live GitHub fetch or LLM call on each view (NFR-001).
-export const revalidate = 3600;
+import { DEFAULT_LOCALE, LOCALE_COOKIE, getDictionary, isLocale } from "@/lib/i18n";
 
 // FR-001/FR-002: a GitHub URL or owner/repo → analysis; anything else → knowledge search.
 async function handleSubmit(formData: FormData) {
@@ -18,25 +16,27 @@ async function handleSubmit(formData: FormData) {
   redirect(`/github/search?q=${encodeURIComponent(raw)}`);
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieLang = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const d = getDictionary(isLocale(cookieLang) ? cookieLang : DEFAULT_LOCALE);
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-24 text-center">
       {/* Hero */}
       <div className="mb-4 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-400/10 border border-blue-400/20 rounded-full px-3 py-1">
         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-        KI-gestützte Repository-Analyse
+        {d.hero.badge}
       </div>
 
       <h1 className="text-4xl sm:text-5xl font-bold text-slate-100 leading-tight mb-5 tracking-tight">
-        Verstehe GitHub-Repositories{" "}
+        {d.hero.title}{" "}
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
-          schneller
+          {d.hero.accent}
         </span>
       </h1>
 
       <p className="text-lg text-slate-400 mb-12 max-w-xl mx-auto leading-relaxed">
-        Was es ist, wofür du es brauchst und wie du es einsetzt — in Sekunden.
-        Erkenne Risiken früh und nutze Open-Source-Projekte sicherer.
+        {d.hero.subtitle}
       </p>
 
       {/* Search form */}
@@ -44,7 +44,7 @@ export default function HomePage() {
         <input
           name="url"
           type="text"
-          placeholder="Repository (owner/repo) oder Begriff (z. B. git push)"
+          placeholder={d.search.placeholder}
           className="flex-1 bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-3.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 text-sm transition-all"
           autoComplete="off"
           required
@@ -53,12 +53,12 @@ export default function HomePage() {
           type="submit"
           className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors whitespace-nowrap"
         >
-          Analysieren →
+          {d.search.button}
         </button>
       </form>
 
       <p className="text-xs text-slate-600">
-        Beispiele:{" "}
+        {d.search.examples}{" "}
         {["vercel/next.js", "shadcn-ui/ui", "badlogic/pi-mono"].map((r) => (
           <a key={r} href={`/analyse/${r}`} className="text-slate-500 hover:text-blue-400 transition-colors mx-1.5 underline underline-offset-2">
             {r}
