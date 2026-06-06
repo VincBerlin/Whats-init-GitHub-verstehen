@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import DailyTopRepos from "@/components/DailyTopRepos";
 import WeeklyTopRepos from "@/components/WeeklyTopRepos";
 import NicheFinds from "@/components/NicheFinds";
+import AdSlot from "@/components/AdSlot";
 import { parseRepoInput } from "@/lib/repo-normalize";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, getDictionary, isLocale } from "@/lib/i18n";
 
@@ -70,6 +71,8 @@ export default async function HomePage() {
       <div className="mt-20 space-y-16">
         <DailyTopRepos />
         <WeeklyTopRepos />
+        {/* Policy-safe ad: content-break zone, separated from copy/CTA buttons (FR-020) */}
+        <AdSlot placement="content-break" width={728} height={90} />
         <NicheFinds />
       </div>
     </div>
