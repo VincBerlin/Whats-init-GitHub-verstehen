@@ -88,8 +88,11 @@ export interface RepoSnapshot {
   snapshot_date: string; // YYYY-MM-DD
 }
 
+export type RankingPeriod = "daily" | "weekly" | "niche";
+
 export interface WeeklyTopRepository {
-  week_start: string;
+  period_type: RankingPeriod;
+  week_start: string; // for daily/niche: the day; for weekly: Monday
   week_end: string;
   rank: number;
   repo_key: string;
@@ -100,10 +103,11 @@ export interface WeeklyTopRepository {
   language: string | null;
   stars: number;
   forks: number;
-  stars_delta: number;
-  forks_delta: number;
+  stars_delta: number | null;
+  forks_delta: number | null;
   weekly_score: number;
   reason: string;
+  is_fallback: boolean;
 }
 
 export interface SnapshotStore {
@@ -114,11 +118,16 @@ export interface SnapshotStore {
   getByDate(snapshotDate: string): Promise<RepoSnapshot[]>;
 }
 
-export interface WeeklyTopStore {
-  /** Idempotent: replace all rows for a week (unique week_start, rank). */
-  replaceWeek(weekStart: string, weekEnd: string, items: WeeklyTopRepository[]): Promise<void>;
-  /** Rows for the most recent week_start, ordered by rank. */
-  getLatestWeek(): Promise<WeeklyTopRepository[]>;
+export interface RankingStore {
+  /** Idempotent: replace all rows for a (period_type, periodStart). */
+  replacePeriod(
+    period: RankingPeriod,
+    periodStart: string,
+    periodEnd: string,
+    items: WeeklyTopRepository[],
+  ): Promise<void>;
+  /** Rows for the most recent periodStart of a period_type, ordered by rank. */
+  getLatest(period: RankingPeriod): Promise<WeeklyTopRepository[]>;
 }
 
 export type LockResult = "acquired" | "in_progress";

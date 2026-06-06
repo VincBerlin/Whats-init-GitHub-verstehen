@@ -7,13 +7,14 @@ import type {
   AnalysisLockStore,
   LockResult,
   NewAnalysisCacheRecord,
+  RankingPeriod,
+  RankingStore,
   RepoSnapshot,
   SnapshotStore,
   UsageEvent,
   UsageEventStore,
   UsageEventType,
   WeeklyTopRepository,
-  WeeklyTopStore,
 } from "../ports";
 
 function toRecord(row: QueryResultRow): AnalysisCacheRecord {
@@ -203,6 +204,7 @@ export class PgSnapshotStore implements SnapshotStore {
 function toWeekly(row: QueryResultRow): WeeklyTopRepository {
   const d = (v: unknown) => (typeof v === "string" ? v : new Date(v as string).toISOString().slice(0, 10));
   return {
+    period_type: (row.period_type ?? "weekly") as RankingPeriod,
     week_start: d(row.week_start),
     week_end: d(row.week_end),
     rank: Number(row.rank),
@@ -214,29 +216,39 @@ function toWeekly(row: QueryResultRow): WeeklyTopRepository {
     language: row.language ?? null,
     stars: Number(row.stars),
     forks: Number(row.forks),
-    stars_delta: Number(row.stars_delta),
-    forks_delta: Number(row.forks_delta),
+    stars_delta: row.stars_delta == null ? null : Number(row.stars_delta),
+    forks_delta: row.forks_delta == null ? null : Number(row.forks_delta),
     weekly_score: Number(row.weekly_score),
     reason: row.reason,
+    is_fallback: Boolean(row.is_fallback),
   };
 }
 
-export class PgWeeklyTopStore implements WeeklyTopStore {
+export class PgRankingStore implements RankingStore {
   constructor(private pool: Pool) {}
 
-  async replaceWeek(weekStart: string, weekEnd: string, items: WeeklyTopRepository[]): Promise<void> {
+  async replacePeriod(
+    period: RankingPeriod,
+    periodStart: string,
+    _periodEnd: string,
+    items: WeeklyTopRepository[],
+  ): Promise<void> {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      await client.query("DELETE FROM weekly_top_repositories WHERE week_start = $1", [weekStart]);
+      await client.query(
+        "DELETE FROM weekly_top_repositories WHERE period_type = $1 AND week_start = $2",
+        [period, periodStart],
+      );
       for (const it of items) {
         await client.query(
           `INSERT INTO weekly_top_repositories
-            (week_start, week_end, rank, repo_key, owner, repo, github_url, description, language,
-             stars, forks, stars_delta, forks_delta, weekly_score, reason)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
-          [weekStart, weekEnd, it.rank, it.repo_key, it.owner, it.repo, it.github_url, it.description, it.language,
-            it.stars, it.forks, it.stars_delta, it.forks_delta, it.weekly_score, it.reason],
+            (period_type, week_start, week_end, rank, repo_key, owner, repo, github_url, description, language,
+             stars, forks, stars_delta, forks_delta, weekly_score, reason, is_fallback, data_source)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+          [period, it.week_start, it.week_end, it.rank, it.repo_key, it.owner, it.repo, it.github_url,
+            it.description, it.language, it.stars, it.forks, it.stars_delta, it.forks_delta,
+            it.weekly_score, it.reason, it.is_fallback, "github_api_snapshot"],
         );
       }
       await client.query("COMMIT");
@@ -248,11 +260,13 @@ export class PgWeeklyTopStore implements WeeklyTopStore {
     }
   }
 
-  async getLatestWeek(): Promise<WeeklyTopRepository[]> {
+  async getLatest(period: RankingPeriod): Promise<WeeklyTopRepository[]> {
     const { rows } = await this.pool.query(
       `SELECT * FROM weekly_top_repositories
-       WHERE week_start = (SELECT max(week_start) FROM weekly_top_repositories)
+       WHERE period_type = $1
+         AND week_start = (SELECT max(week_start) FROM weekly_top_repositories WHERE period_type = $1)
        ORDER BY rank`,
+      [period],
     );
     return rows.map(toWeekly);
   }

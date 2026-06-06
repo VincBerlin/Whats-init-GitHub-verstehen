@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { updateTrendingSnapshots, updateWeeklyTrending, weekBounds } from "./trending";
+import { updateTrendingSnapshots, updateWeeklyTrending, updateDailyDiscovery, weekBounds } from "./trending";
 import { isAuthorizedCron } from "./cron-auth";
 import {
   MemoryAnalysisCacheStore,
   MemoryAnalysisLockStore,
+  MemoryRankingStore,
   MemorySnapshotStore,
   MemoryUsageEventStore,
-  MemoryWeeklyTopStore,
 } from "./stores/memory-stores";
 import type { Stores } from "./stores";
 
@@ -16,7 +16,7 @@ function freshStores(): Stores {
     usage: new MemoryUsageEventStore(),
     lock: new MemoryAnalysisLockStore(),
     snapshots: new MemorySnapshotStore(),
-    weeklyTop: new MemoryWeeklyTopStore(),
+    rankings: new MemoryRankingStore(),
   };
 }
 
@@ -57,7 +57,7 @@ describe("trending jobs", () => {
     const res = await updateWeeklyTrending("2026-06-08", "2026-06-14", "2026-06-08", { stores });
     expect(res.itemsWritten).toBe(2);
 
-    const top = await stores.weeklyTop.getLatestWeek();
+    const top = await stores.rankings.getLatest("weekly");
     expect(top[0].rank).toBe(1);
     expect(top[0].repo_key).toBe("a/rocket"); // bigger weekly growth wins
     expect(top[0].stars_delta).toBe(3000);
@@ -68,8 +68,39 @@ describe("trending jobs", () => {
     await updateTrendingSnapshots("2026-06-08", { stores, fetchCandidates: async () => candidates });
     await updateWeeklyTrending("2026-06-08", "2026-06-14", "2026-06-08", { stores });
     await updateWeeklyTrending("2026-06-08", "2026-06-14", "2026-06-08", { stores });
-    const top = await stores.weeklyTop.getLatestWeek();
+    const top = await stores.rankings.getLatest("weekly");
     expect(top.length).toBe(2); // not duplicated
+  });
+});
+
+// Vision PHASE-3 — daily discovery writes daily + niche, no LLM
+describe("daily discovery", () => {
+  it("writes Daily Top 5 and Niche rankings from candidates", async () => {
+    const stores = freshStores();
+    const cands = [
+      { owner: "big", repo: "giant", stars: 90000, forks: 800, language: "C", description: null },
+      { owner: "small", repo: "gem", stars: 300, forks: 90, language: "TS", description: "nützlich" },
+      { owner: "mid", repo: "tool", stars: 3000, forks: 400, language: "Go", description: "tool" },
+    ];
+    const res = await updateDailyDiscovery("2026-06-09", { stores, fetchCandidates: async () => cands });
+    expect(res.snapshotsCreated).toBe(3);
+    expect(res.dailyWritten).toBe(3);
+    expect(res.nicheWritten).toBe(3);
+
+    const daily = await stores.rankings.getLatest("daily");
+    expect(daily[0].repo_key).toBe("big/giant"); // popularity wins daily
+
+    const niche = await stores.rankings.getLatest("niche");
+    expect(niche[0].repo_key).not.toBe("big/giant"); // niche is not star-dominant
+    expect(niche.every((n) => n.period_type === "niche")).toBe(true);
+  });
+
+  it("does not pollute weekly rankings", async () => {
+    const stores = freshStores();
+    await updateDailyDiscovery("2026-06-09", { stores, fetchCandidates: async () => [
+      { owner: "a", repo: "b", stars: 100, forks: 10, language: "TS", description: "x" },
+    ] });
+    expect((await stores.rankings.getLatest("weekly")).length).toBe(0);
   });
 });
 

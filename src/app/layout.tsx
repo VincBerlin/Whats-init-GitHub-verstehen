@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import HeaderSearch from "@/components/HeaderSearch";
 import ThemeToggle from "@/components/ThemeToggle";
+import LanguageToggle from "@/components/LanguageToggle";
 
 export const metadata: Metadata = {
   title: { default: "What's in it? — GitHub Repositories verstehen", template: "%s | What's in it?" },
@@ -42,9 +43,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>What&apos;s in it?</span>
             </Link>
             <HeaderSearch />
-            <div className="flex items-center gap-6 text-sm text-slate-400">
+            <div className="flex items-center gap-4 sm:gap-5 text-sm text-slate-400">
               <Link href="/github" className="hidden sm:inline hover:text-slate-200 transition-colors">Git &amp; GitHub</Link>
               <Link href="/github/shortcuts" className="hidden sm:inline hover:text-slate-200 transition-colors">Shortcuts</Link>
+              <Link href="/github/trending" className="hidden md:inline hover:text-slate-200 transition-colors">Discover</Link>
+              <LanguageToggle />
               <ThemeToggle />
             </div>
           </div>

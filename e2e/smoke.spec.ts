@@ -8,13 +8,13 @@ import { test, expect } from "@playwright/test";
 test("home page loads", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("h1")).toContainText("Verstehe GitHub");
-  await expect(page.getByPlaceholder("https://github.com/owner/repo")).toBeVisible();
+  await expect(page.getByPlaceholder(/Repository \(owner\/repo\)/)).toBeVisible();
 });
 
 test("submitting a GitHub URL reaches the analyse route", async ({ page }) => {
   await page.goto("/");
-  await page.getByPlaceholder("https://github.com/owner/repo").fill("https://github.com/vercel/next.js");
-  await page.getByRole("button", { name: /Analysieren/ }).click();
+  await page.getByPlaceholder(/Repository \(owner\/repo\)/).fill("https://github.com/vercel/next.js");
+  await page.getByRole("button", { name: /Los|Go/ }).click();
   await page.waitForURL(/\/analyse\/vercel\/next\.js/, { timeout: 30_000 });
   expect(page.url()).toContain("/analyse/vercel/next.js");
 });
@@ -28,6 +28,17 @@ test("knowledge hub pages load", async ({ page }) => {
 
   await page.goto("/github/trending");
   await expect(page.locator("h1")).toContainText("Weekly Top 10");
+});
+
+test("homepage shows discovery sections", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Daily Top 5" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Weekly Top 10" })).toBeVisible();
+});
+
+test("knowledge search route works for a term", async ({ page }) => {
+  await page.goto("/github/search?q=git%20push");
+  await expect(page.locator("h1")).toContainText("git push");
 });
 
 test("a knowledge detail page loads", async ({ page }) => {

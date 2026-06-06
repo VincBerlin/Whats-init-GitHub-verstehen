@@ -1,36 +1,43 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import DailyTopRepos from "@/components/DailyTopRepos";
 import WeeklyTopRepos from "@/components/WeeklyTopRepos";
+import NicheFinds from "@/components/NicheFinds";
+import AdSlot from "@/components/AdSlot";
+import { parseRepoInput } from "@/lib/repo-normalize";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, getDictionary, isLocale } from "@/lib/i18n";
 
-// ISR: revalidate hourly so the Weekly Top 10 reflects DB updates without a
-// live GitHub fetch or LLM call on each view (NFR-001).
-export const revalidate = 3600;
-
+// FR-001/FR-002: a GitHub URL or owner/repo → analysis; anything else → knowledge search.
 async function handleSubmit(formData: FormData) {
   "use server";
-  const url = formData.get("url") as string;
-  const match = url?.match(/github\.com\/([^/]+)\/([^/?\s#]+)/);
-  if (match) redirect(`/analyse/${match[1]}/${match[2]}`);
+  const raw = ((formData.get("url") as string) ?? "").trim();
+  if (!raw) return; // empty: input is `required`, browser blocks submit
+  const parsed = parseRepoInput(raw);
+  if (parsed.ok) redirect(`/analyse/${parsed.value.owner}/${parsed.value.repo}`);
+  redirect(`/github/search?q=${encodeURIComponent(raw)}`);
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieLang = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const d = getDictionary(isLocale(cookieLang) ? cookieLang : DEFAULT_LOCALE);
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-24 text-center">
       {/* Hero */}
       <div className="mb-4 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-400/10 border border-blue-400/20 rounded-full px-3 py-1">
         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-        KI-gestützte Repository-Analyse
+        {d.hero.badge}
       </div>
 
       <h1 className="text-4xl sm:text-5xl font-bold text-slate-100 leading-tight mb-5 tracking-tight">
-        Verstehe GitHub-Repositories{" "}
+        {d.hero.title}{" "}
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
-          schneller
+          {d.hero.accent}
         </span>
       </h1>
 
       <p className="text-lg text-slate-400 mb-12 max-w-xl mx-auto leading-relaxed">
-        Was es ist, wofür du es brauchst und wie du es einsetzt — in Sekunden.
-        Erkenne Risiken früh und nutze Open-Source-Projekte sicherer.
+        {d.hero.subtitle}
       </p>
 
       {/* Search form */}
@@ -38,7 +45,7 @@ export default function HomePage() {
         <input
           name="url"
           type="text"
-          placeholder="https://github.com/owner/repo"
+          placeholder={d.search.placeholder}
           className="flex-1 bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-3.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 text-sm transition-all"
           autoComplete="off"
           required
@@ -47,12 +54,12 @@ export default function HomePage() {
           type="submit"
           className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors whitespace-nowrap"
         >
-          Analysieren →
+          {d.search.button}
         </button>
       </form>
 
       <p className="text-xs text-slate-600">
-        Beispiele:{" "}
+        {d.search.examples}{" "}
         {["vercel/next.js", "shadcn-ui/ui", "badlogic/pi-mono"].map((r) => (
           <a key={r} href={`/analyse/${r}`} className="text-slate-500 hover:text-blue-400 transition-colors mx-1.5 underline underline-offset-2">
             {r}
@@ -60,24 +67,13 @@ export default function HomePage() {
         ))}
       </p>
 
-      {/* Feature pills */}
-      <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-        {[
-          { icon: "⚡", title: "Sofort-Analyse", desc: "Kategorie, Nutzen und Risiken auf einen Blick." },
-          { icon: "🤖", title: "KI-Befehle", desc: "Fertige Prompts für Claude & Cursor zur Integration." },
-          { icon: "📚", title: "Git & GitHub", desc: "Befehle, Workflows und Shortcuts zum Kopieren." },
-        ].map((f) => (
-          <div key={f.title} className="bg-slate-900/60 border border-slate-800/60 rounded-xl p-5 hover:border-slate-700/60 transition-colors">
-            <div className="text-2xl mb-3">{f.icon}</div>
-            <div className="font-semibold text-slate-200 text-sm mb-1">{f.title}</div>
-            <div className="text-slate-500 text-xs leading-relaxed">{f.desc}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Weekly Top 10 (PHASE-5) — stored data, no live GitHub / no LLM */}
-      <div className="mt-24">
+      {/* Discovery (Daily → Weekly → Niche) — stored data, no live GitHub / no LLM */}
+      <div className="mt-20 space-y-16">
+        <DailyTopRepos />
         <WeeklyTopRepos />
+        {/* Policy-safe ad: content-break zone, separated from copy/CTA buttons (FR-020) */}
+        <AdSlot placement="content-break" width={728} height={90} />
+        <NicheFinds />
       </div>
     </div>
   );

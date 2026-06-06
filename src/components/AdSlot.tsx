@@ -25,9 +25,12 @@ export default function AdSlot({ placement, width = 300, height = 250, slotId }:
     const client = adsenseClient();
     return (
       <div className={wrapper} style={{ maxWidth: "100%" }} aria-label="Werbeanzeige">
+        {/* Label required for transparency / AdSense policy (FR-019) */}
+        <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-1 text-center">Anzeige</div>
+        {/* min-height reserves space to avoid layout shift (NFR-006/CLS) */}
         <ins
           className="adsbygoogle"
-          style={{ display: "block", width, height }}
+          style={{ display: "block", width, minHeight: height }}
           data-ad-client={client}
           data-ad-slot={slotId}
           data-ad-format="auto"

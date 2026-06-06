@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { KNOWLEDGE_ITEMS } from "@/data/github-knowledge";
 import { WORKFLOWS } from "@/data/git-workflows";
+import { groupByCategory } from "@/lib/knowledge-taxonomy";
+import KnowledgeList from "@/components/KnowledgeList";
 
 export const metadata: Metadata = {
   title: "Git & GitHub Wissen — Befehle, Workflows & Shortcuts",
@@ -47,12 +48,13 @@ export default function GitHubHubPage() {
         ))}
       </ul>
 
-      <h2 className="text-xl font-semibold text-slate-100 mb-4">Alle Themen</h2>
-      <div className="flex flex-wrap gap-2">
-        {KNOWLEDGE_ITEMS.map((k) => (
-          <Link key={k.slug} href={`/github/${k.slug}`} className="inline-flex items-center px-3 py-1.5 rounded-full text-sm bg-slate-800/60 text-slate-300 border border-slate-700/60 hover:bg-slate-700/60 hover:text-slate-100 transition-all">
-            {k.title}
-          </Link>
+      <h2 className="text-xl font-semibold text-slate-100 mb-6">Themen nach Kategorie</h2>
+      <div className="space-y-10">
+        {groupByCategory().map((g) => (
+          <section key={g.category}>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">{g.label}</h3>
+            <KnowledgeList items={g.items} />
+          </section>
         ))}
       </div>
     </div>

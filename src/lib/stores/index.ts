@@ -4,23 +4,23 @@ import { getPool, hasDatabase } from "../db";
 import type {
   AnalysisCacheStore,
   AnalysisLockStore,
+  RankingStore,
   SnapshotStore,
   UsageEventStore,
-  WeeklyTopStore,
 } from "../ports";
 import {
   MemoryAnalysisCacheStore,
   MemoryAnalysisLockStore,
+  MemoryRankingStore,
   MemorySnapshotStore,
   MemoryUsageEventStore,
-  MemoryWeeklyTopStore,
 } from "./memory-stores";
 import {
   PgAnalysisCacheStore,
   PgAnalysisLockStore,
+  PgRankingStore,
   PgSnapshotStore,
   PgUsageEventStore,
-  PgWeeklyTopStore,
 } from "./pg-stores";
 
 export interface Stores {
@@ -28,7 +28,7 @@ export interface Stores {
   usage: UsageEventStore;
   lock: AnalysisLockStore;
   snapshots: SnapshotStore;
-  weeklyTop: WeeklyTopStore;
+  rankings: RankingStore;
 }
 
 let singleton: Stores | null = null;
@@ -44,7 +44,7 @@ export function getStores(): Stores {
       usage: new PgUsageEventStore(pool),
       lock: new PgAnalysisLockStore(pool),
       snapshots: new PgSnapshotStore(pool),
-      weeklyTop: new PgWeeklyTopStore(pool),
+      rankings: new PgRankingStore(pool),
     };
   } else {
     if (!warnedDevFallback && process.env.NODE_ENV !== "test") {
@@ -59,7 +59,7 @@ export function getStores(): Stores {
       usage: new MemoryUsageEventStore(),
       lock: new MemoryAnalysisLockStore(),
       snapshots: new MemorySnapshotStore(),
-      weeklyTop: new MemoryWeeklyTopStore(),
+      rankings: new MemoryRankingStore(),
     };
   }
   return singleton;

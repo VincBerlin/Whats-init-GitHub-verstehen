@@ -7,13 +7,14 @@ import type {
   AnalysisLockStore,
   LockResult,
   NewAnalysisCacheRecord,
+  RankingPeriod,
+  RankingStore,
   RepoSnapshot,
   SnapshotStore,
   UsageEvent,
   UsageEventStore,
   UsageEventType,
   WeeklyTopRepository,
-  WeeklyTopStore,
 } from "../ports";
 
 export class MemoryAnalysisCacheStore implements AnalysisCacheStore {
@@ -115,16 +116,24 @@ export class MemorySnapshotStore implements SnapshotStore {
   }
 }
 
-export class MemoryWeeklyTopStore implements WeeklyTopStore {
+export class MemoryRankingStore implements RankingStore {
   private rows: WeeklyTopRepository[] = [];
 
-  async replaceWeek(weekStart: string, _weekEnd: string, items: WeeklyTopRepository[]): Promise<void> {
-    this.rows = this.rows.filter((r) => r.week_start !== weekStart).concat(items);
+  async replacePeriod(
+    period: RankingPeriod,
+    periodStart: string,
+    _periodEnd: string,
+    items: WeeklyTopRepository[],
+  ): Promise<void> {
+    this.rows = this.rows
+      .filter((r) => !(r.period_type === period && r.week_start === periodStart))
+      .concat(items);
   }
 
-  async getLatestWeek(): Promise<WeeklyTopRepository[]> {
-    if (this.rows.length === 0) return [];
-    const latest = this.rows.reduce((m, r) => (r.week_start > m ? r.week_start : m), this.rows[0].week_start);
-    return this.rows.filter((r) => r.week_start === latest).sort((a, b) => a.rank - b.rank);
+  async getLatest(period: RankingPeriod): Promise<WeeklyTopRepository[]> {
+    const scoped = this.rows.filter((r) => r.period_type === period);
+    if (scoped.length === 0) return [];
+    const latest = scoped.reduce((m, r) => (r.week_start > m ? r.week_start : m), scoped[0].week_start);
+    return scoped.filter((r) => r.week_start === latest).sort((a, b) => a.rank - b.rank);
   }
 }

@@ -12,6 +12,18 @@ on:
   workflow_dispatch:
 
 jobs:
+  daily-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update daily discovery (Daily Top + Niche, snapshots)
+        run: |
+          curl -fsS -X POST "$APP_URL/api/jobs/update-daily-discovery" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" -d '{}'
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
   snapshots:
     runs-on: ubuntu-latest
     steps:
