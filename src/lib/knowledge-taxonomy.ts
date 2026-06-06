@@ -64,6 +64,11 @@ const SYNONYMS: Record<string, string[]> = {
   "github-actions": ["actions", "ci", "cd", "workflow", "yaml", "pipeline"],
   "pull-request": ["pr", "pull request", "review", "merge request"],
   "projekt-veroeffentlichen": ["veröffentlichen", "publish", "first push", "remote add"],
+  "permission-denied-publickey": ["permission denied", "publickey", "ssh fehler", "ssh error", "git@github.com"],
+  "merge-konflikt": ["merge konflikt", "conflict", "konflikt", "<<<<<<<", "merge --abort"],
+  "detached-head": ["detached head", "head", "checkout commit"],
+  "git-stash": ["stash", "zwischenspeichern", "pop", "beiseite legen"],
+  "fetch-vs-pull": ["fetch", "pull", "unterschied", "remote tracking"],
 };
 
 export interface EnrichedTopic extends GitHubKnowledgeItem {

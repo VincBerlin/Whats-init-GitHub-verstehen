@@ -248,6 +248,87 @@ export const KNOWLEDGE_ITEMS: GitHubKnowledgeItem[] = [
     commonMistakes: [".env oder Keys vor dem ersten Push nicht ignorieren"],
     relatedSlugs: ["git-init", "git-remote", "gitignore", "pull-request"],
   },
+
+  // PHASE-5 (Vision) — curated troubleshooting/common modules (human-authored,
+  // accurate; NOT AI-bulk-generated, per OUT-005/RISK-008).
+  {
+    slug: "permission-denied-publickey",
+    title: "Fehler: Permission denied (publickey)",
+    category: "security",
+    age16Summary:
+      "Dieser Fehler bedeutet: GitHub erkennt deinen SSH-Schlüssel nicht. Meist fehlt der öffentliche Schlüssel in deinem GitHub-Konto oder der SSH-Agent kennt ihn nicht.",
+    expertExplanation:
+      "„Permission denied (publickey)“ tritt auf, wenn die SSH-Authentifizierung scheitert: kein passender Key beim Agent, der öffentliche Schlüssel ist nicht in den GitHub-SSH-Settings hinterlegt, oder die falsche Remote-URL (HTTPS statt SSH). Prüfe die Verbindung mit `ssh -T git@github.com`.",
+    syntax: "ssh -T git@github.com\nssh-add ~/.ssh/id_ed25519",
+    copyCommand: "ssh -T git@github.com",
+    whenToUse: ["Wenn push/pull über SSH abgelehnt wird", "Nach dem Einrichten eines neuen Rechners"],
+    risks: ["Privaten Schlüssel niemals weitergeben"],
+    commonMistakes: ["Öffentlichen Schlüssel nicht bei GitHub hinterlegt", "HTTPS-Remote statt SSH-Remote verwendet"],
+    relatedSlugs: ["ssh-keys", "git-remote"],
+    faq: [
+      { question: "Wie prüfe ich, ob mein Key funktioniert?", answer: "Mit `ssh -T git@github.com` — bei Erfolg begrüßt dich GitHub mit deinem Benutzernamen." },
+    ],
+  },
+  {
+    slug: "merge-konflikt",
+    title: "Merge-Konflikte verstehen",
+    category: "branching",
+    age16Summary:
+      "Ein Merge-Konflikt entsteht, wenn zwei Änderungen dieselbe Stelle anders bearbeiten. Git kann dann nicht selbst entscheiden und markiert die Stelle, damit du sie auflöst.",
+    expertExplanation:
+      "Bei einem Konflikt markiert Git die betroffenen Bereiche mit `<<<<<<<`, `=======`, `>>>>>>>`. Du wählst pro Stelle den richtigen Code, entfernst die Marker, `git add` die Datei und schließt mit `git commit` ab. `git merge --abort` bricht einen Merge sicher ab.",
+    syntax: "git status\n# Konflikte bearbeiten\ngit add .\ngit commit",
+    copyCommand: "git merge --abort",
+    whenToUse: ["Wenn merge, pull oder rebase einen Konflikt melden"],
+    risks: ["Konfliktmarker versehentlich im Code belassen", "Fremde Änderungen ungeprüft überschreiben"],
+    commonMistakes: ["Konflikt „auflösen“, ohne den Code zu verstehen"],
+    relatedSlugs: ["git-merge", "git-rebase", "git-push-pull"],
+  },
+  {
+    slug: "detached-head",
+    title: "Detached HEAD verstehen",
+    category: "undo",
+    age16Summary:
+      "„Detached HEAD“ heißt: du schaust dir einen einzelnen Commit an, statt auf einem Branch zu arbeiten. Neue Commits hier gehen verloren, wenn du keinen Branch erstellst.",
+    expertExplanation:
+      "Ein detached HEAD entsteht beim Auschecken eines konkreten Commits/Tags statt eines Branches. Commits in diesem Zustand gehören zu keinem Branch und können von der Garbage Collection entfernt werden. Mit `git switch -c <branch>` sicherst du deine Arbeit auf einen neuen Branch.",
+    syntax: "git switch -c rettung\ngit switch main",
+    copyCommand: "git switch -c mein-branch",
+    whenToUse: ["Nach `git checkout <commit>`/Tag", "Wenn Git „You are in detached HEAD state“ meldet"],
+    risks: ["Commits im detached-Zustand gehen ohne Branch verloren"],
+    commonMistakes: ["Im detached HEAD weiterarbeiten und den Branch vergessen"],
+    relatedSlugs: ["git-branch", "rueckgaengig-machen"],
+  },
+  {
+    slug: "git-stash",
+    title: "git stash — Änderungen zwischenspeichern",
+    category: "git-commands",
+    age16Summary:
+      "Mit git stash legst du deine aktuellen, noch nicht committeten Änderungen kurz beiseite — zum Beispiel um schnell den Branch zu wechseln — und holst sie später zurück.",
+    expertExplanation:
+      "git stash sichert uncommittete Änderungen auf einen Stash-Stack und stellt das saubere Arbeitsverzeichnis wieder her. `git stash pop` spielt die letzten Änderungen zurück und entfernt sie vom Stack; `git stash list` zeigt alle Stashes.",
+    syntax: "git stash\ngit stash pop",
+    copyCommand: "git stash",
+    whenToUse: ["Schnell den Branch wechseln, ohne zu committen", "Halbfertige Arbeit kurz parken"],
+    risks: ["Vergessene Stashes stauen sich an", "Konflikte beim Zurückspielen möglich"],
+    commonMistakes: ["stash pop bei Konflikten nicht sauber auflösen"],
+    relatedSlugs: ["git-add-commit", "git-branch"],
+  },
+  {
+    slug: "fetch-vs-pull",
+    title: "git fetch vs. git pull",
+    category: "remote",
+    age16Summary:
+      "git fetch lädt nur die Neuigkeiten herunter, ohne deinen Code zu verändern. git pull lädt sie herunter UND führt sie direkt zusammen (fetch + merge).",
+    expertExplanation:
+      "git fetch aktualisiert die Remote-Tracking-Branches, lässt deinen Arbeitsstand aber unangetastet — du kannst die Änderungen erst prüfen. git pull ist fetch + merge (oder fetch + rebase mit `--rebase`) in einem Schritt. Wer kontrolliert vorgehen will, nutzt fetch und merged bewusst.",
+    syntax: "git fetch origin\ngit pull --rebase",
+    copyCommand: "git fetch origin",
+    whenToUse: ["Vor dem Mergen erst die Remote-Änderungen prüfen", "Team-Arbeit mit häufigen Updates"],
+    risks: ["git pull kann unerwartete Merge-Commits erzeugen"],
+    commonMistakes: ["Blind pullen statt Änderungen vorher zu sichten"],
+    relatedSlugs: ["git-push-pull", "git-remote", "merge-konflikt"],
+  },
 ];
 
 export function getKnowledgeItem(slug: string): GitHubKnowledgeItem | undefined {
