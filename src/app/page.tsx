@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import DailyTopRepos from "@/components/DailyTopRepos";
 import WeeklyTopRepos from "@/components/WeeklyTopRepos";
+import NicheFinds from "@/components/NicheFinds";
 import { parseRepoInput } from "@/lib/repo-normalize";
 
 // ISR: revalidate hourly so the Weekly Top 10 reflects DB updates without a
@@ -64,12 +66,11 @@ export default function HomePage() {
         ))}
       </p>
 
-      {/* PHASE-1: dead mockup feature cards removed (FR-004).
-          Discovery (Daily/Weekly/Niche) lives below — real data, no LLM. */}
-
-      {/* Weekly Top 10 (PHASE-5) — stored data, no live GitHub / no LLM */}
-      <div className="mt-24">
+      {/* Discovery (Daily → Weekly → Niche) — stored data, no live GitHub / no LLM */}
+      <div className="mt-20 space-y-16">
+        <DailyTopRepos />
         <WeeklyTopRepos />
+        <NicheFinds />
       </div>
     </div>
   );
