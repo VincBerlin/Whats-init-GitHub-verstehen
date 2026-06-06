@@ -3,6 +3,14 @@
 import { searchRepositories, type RepoSearchItem } from "./github";
 import type { RepoSnapshot, WeeklyTopRepository } from "./ports";
 import { rankTopRepositories, type RankCandidate } from "./trending-score";
+import {
+  dailyReason,
+  dailyScore,
+  nicheQualityScore,
+  nicheReason,
+  rankBy,
+  type ScoredCandidate,
+} from "./discovery/scoring";
 import type { Stores } from "./stores";
 
 // Candidate discovery queries (popular + recently active public repos).
@@ -90,6 +98,7 @@ export async function updateWeeklyTrending(
 
   const ranked = rankTopRepositories(candidates, 10);
   const items: WeeklyTopRepository[] = ranked.map((r) => ({
+    period_type: "weekly",
     week_start: weekStart,
     week_end: weekEnd,
     rank: r.rank,
@@ -105,10 +114,81 @@ export async function updateWeeklyTrending(
     forks_delta: r.forksDelta,
     weekly_score: r.weekly_score,
     reason: r.reason,
+    is_fallback: false,
   }));
 
-  await deps.stores.weeklyTop.replaceWeek(weekStart, weekEnd, items);
+  await deps.stores.rankings.replacePeriod("weekly", weekStart, weekEnd, items);
   return { itemsWritten: items.length };
+}
+
+// PHASE-3 (Vision) — daily discovery: snapshots + Daily Top + Niche Finds.
+// GitHub API + Postgres only, never OpenRouter (FR-018, NOGOAL-001).
+export async function updateDailyDiscovery(
+  day: string,
+  deps: TrendingDeps,
+): Promise<{ snapshotsCreated: number; dailyWritten: number; nicheWritten: number }> {
+  const fetchCandidates = deps.fetchCandidates ?? defaultFetchCandidates;
+  const candidates = await fetchCandidates();
+
+  // 1) Snapshots (idempotent upsert).
+  for (const c of candidates) {
+    await deps.stores.snapshots.upsert({
+      repo_key: `${c.owner}/${c.repo}`.toLowerCase(),
+      owner: c.owner.toLowerCase(),
+      repo: c.repo,
+      stars: c.stars,
+      forks: c.forks,
+      open_issues: null,
+      language: c.language,
+      pushed_at: null,
+      snapshot_date: day,
+    });
+  }
+
+  const disc = candidates.map((c) => ({
+    owner: c.owner,
+    repo: c.repo,
+    stars: c.stars,
+    forks: c.forks,
+    language: c.language,
+    description: c.description,
+  }));
+
+  // 2) Daily Top 5 (popularity/engagement blend).
+  const daily = rankBy(disc, dailyScore, (c) => dailyReason(c), 5).map((r) => toRankingRow("daily", day, r));
+  await deps.stores.rankings.replacePeriod("daily", day, day, daily);
+
+  // 3) Niche Finds (quality, not star-dominant).
+  const niche = rankBy(disc, nicheQualityScore, (c) => nicheReason(c), 10).map((r) => toRankingRow("niche", day, r));
+  await deps.stores.rankings.replacePeriod("niche", day, day, niche);
+
+  return { snapshotsCreated: candidates.length, dailyWritten: daily.length, nicheWritten: niche.length };
+}
+
+function toRankingRow(
+  period: "daily" | "niche",
+  day: string,
+  r: ScoredCandidate,
+): WeeklyTopRepository {
+  return {
+    period_type: period,
+    week_start: day,
+    week_end: day,
+    rank: r.rank,
+    repo_key: `${r.owner}/${r.repo}`.toLowerCase(),
+    owner: r.owner.toLowerCase(),
+    repo: r.repo,
+    github_url: `https://github.com/${r.owner}/${r.repo}`,
+    description: r.description,
+    language: r.language,
+    stars: r.stars,
+    forks: r.forks,
+    stars_delta: null,
+    forks_delta: null,
+    weekly_score: r.score,
+    reason: r.reason,
+    is_fallback: false,
+  };
 }
 
 // Date helpers (ISO week, Monday-based). Pure given an input date.
