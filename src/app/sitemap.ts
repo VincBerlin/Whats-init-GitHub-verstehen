@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { KNOWLEDGE_ITEMS } from "@/data/github-knowledge";
+import { BLOG_ARTICLES } from "@/data/blog";
 import { siteUrl } from "@/lib/site";
 
 // PHASE-6 / FR-020 — sitemap of indexable public pages. Analysis pages are
@@ -10,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/what-is-whats-in-it",
     "/what-is-github",
+    "/blog",
     "/github",
     "/github/shortcuts",
     "/github/commands",
@@ -35,5 +37,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
-  return [...staticEntries, ...knowledgeEntries];
+  const blogEntries = BLOG_ARTICLES.map((a) => ({
+    url: `${base}/blog/${a.slug}`,
+    lastModified: new Date(a.publishedAt),
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+  return [...staticEntries, ...knowledgeEntries, ...blogEntries];
 }

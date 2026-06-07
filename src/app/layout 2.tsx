@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex items-center gap-4 sm:gap-5 text-sm text-slate-400">
               <Link href="/what-is-github" className="hidden lg:inline hover:text-slate-200 transition-colors">Was ist GitHub?</Link>
               <Link href="/github" className="hidden sm:inline hover:text-slate-200 transition-colors">Git &amp; GitHub</Link>
-              <Link href="/blog" className="hidden md:inline hover:text-slate-200 transition-colors">Blog</Link>
+              <Link href="/github/shortcuts" className="hidden md:inline hover:text-slate-200 transition-colors">Shortcuts</Link>
               <Link href="/github/trending" className="hidden md:inline hover:text-slate-200 transition-colors">Discover</Link>
               <LanguageToggle />
               <ThemeToggle />
