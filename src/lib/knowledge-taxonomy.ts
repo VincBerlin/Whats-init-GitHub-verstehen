@@ -17,6 +17,7 @@ export const CATEGORY_ORDER: KnowledgeCategory[] = [
   "security",
   "github-cli",
   "github-actions",
+  "github-api",
   "publishing",
 ];
 
@@ -69,6 +70,14 @@ const SYNONYMS: Record<string, string[]> = {
   "detached-head": ["detached head", "head", "checkout commit"],
   "git-stash": ["stash", "zwischenspeichern", "pop", "beiseite legen"],
   "fetch-vs-pull": ["fetch", "pull", "unterschied", "remote tracking"],
+  dependabot: ["dependabot", "abhängigkeiten", "dependencies", "updates", "schwachstelle", "cve"],
+  "codeql-secret-scanning": ["codeql", "secret scanning", "code scanning", "sicherheitslücke", "leak", "token leak"],
+  "github-api": ["api", "rest", "graphql", "automatisierung", "token", "rate limit"],
+  webhooks: ["webhook", "webhooks", "ereignis", "event", "payload"],
+  lizenzen: ["lizenz", "license", "mit", "apache", "gpl", "copyleft"],
+  organisationen: ["organisation", "organization", "team", "rechte", "mitglieder"],
+  codespaces: ["codespaces", "devcontainer", "cloud ide", "entwicklungsumgebung"],
+  "github-copilot": ["copilot", "ki", "ai", "autocomplete", "assistent"],
 };
 
 export interface EnrichedTopic extends GitHubKnowledgeItem {
