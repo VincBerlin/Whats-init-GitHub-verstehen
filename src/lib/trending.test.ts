@@ -95,6 +95,24 @@ describe("daily discovery", () => {
     expect(niche.every((n) => n.period_type === "niche")).toBe(true);
   });
 
+  it("marks daily as fallback without 24h history, true with delta (PHASE-4)", async () => {
+    const stores = freshStores();
+    const day1 = [{ owner: "a", repo: "x", stars: 100, forks: 10, language: "TS", description: "x" }];
+    // first run: no prior snapshot → fallback
+    await updateDailyDiscovery("2026-06-10", { stores, fetchCandidates: async () => day1 });
+    const d1 = await stores.rankings.getLatest("daily");
+    expect(d1[0].is_fallback).toBe(true);
+
+    // next day: prior snapshot exists → true ranking with delta
+    await updateDailyDiscovery("2026-06-11", {
+      stores,
+      fetchCandidates: async () => [{ owner: "a", repo: "x", stars: 180, forks: 12, language: "TS", description: "x" }],
+    });
+    const d2 = await stores.rankings.getLatest("daily");
+    expect(d2[0].is_fallback).toBe(false);
+    expect(d2[0].stars_delta).toBe(80);
+  });
+
   it("does not pollute weekly rankings", async () => {
     const stores = freshStores();
     await updateDailyDiscovery("2026-06-09", { stores, fetchCandidates: async () => [
