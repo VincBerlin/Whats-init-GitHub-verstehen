@@ -154,8 +154,26 @@ export async function updateDailyDiscovery(
     description: c.description,
   }));
 
-  // 2) Daily Top 5 (popularity/engagement blend).
-  const daily = rankBy(disc, dailyScore, (c) => dailyReason(c), 5).map((r) => toRankingRow("daily", day, r));
+  // PHASE-4 hardening: a "true" daily ranking needs a 24h delta. On first run no
+  // prior snapshot exists → mark the list as fallback (popularity-based), honestly.
+  let hasHistory = false;
+  const deltaByKey = new Map<string, { stars: number; forks: number }>();
+  for (const c of candidates) {
+    const key = `${c.owner}/${c.repo}`.toLowerCase();
+    const prev = await deps.stores.snapshots.getPrevious(key, day);
+    if (prev) {
+      hasHistory = true;
+      deltaByKey.set(key, { stars: c.stars - prev.stars, forks: c.forks - prev.forks });
+    }
+  }
+  const isFallback = !hasHistory;
+
+  // 2) Daily Top 5 (popularity/engagement blend; momentum noted when history exists).
+  const daily = rankBy(disc, dailyScore, (c) => dailyReason(c), 5).map((r) => {
+    const d = deltaByKey.get(`${r.owner}/${r.repo}`.toLowerCase());
+    const reason = d && d.stars > 0 ? `+${d.stars.toLocaleString("de-DE")} Stars seit gestern · ${dailyReason(r)}` : r.reason;
+    return toRankingRow("daily", day, r, { isFallback, starsDelta: d?.stars ?? null, forksDelta: d?.forks ?? null, reason });
+  });
   await deps.stores.rankings.replacePeriod("daily", day, day, daily);
 
   // 3) Niche Finds (quality, not star-dominant).
@@ -169,6 +187,7 @@ function toRankingRow(
   period: "daily" | "niche",
   day: string,
   r: ScoredCandidate,
+  opts?: { isFallback?: boolean; starsDelta?: number | null; forksDelta?: number | null; reason?: string },
 ): WeeklyTopRepository {
   return {
     period_type: period,
@@ -183,11 +202,11 @@ function toRankingRow(
     language: r.language,
     stars: r.stars,
     forks: r.forks,
-    stars_delta: null,
-    forks_delta: null,
+    stars_delta: opts?.starsDelta ?? null,
+    forks_delta: opts?.forksDelta ?? null,
     weekly_score: r.score,
-    reason: r.reason,
-    is_fallback: false,
+    reason: opts?.reason ?? r.reason,
+    is_fallback: opts?.isFallback ?? false,
   };
 }
 

@@ -329,6 +329,122 @@ export const KNOWLEDGE_ITEMS: GitHubKnowledgeItem[] = [
     commonMistakes: ["Blind pullen statt Änderungen vorher zu sichten"],
     relatedSlugs: ["git-push-pull", "git-remote", "merge-konflikt"],
   },
+
+  // PHASE-3 (Master Plan) — knowledge hub expansion (human-authored, accurate).
+  {
+    slug: "dependabot",
+    title: "Dependabot — Abhängigkeiten sicher halten",
+    category: "security",
+    age16Summary:
+      "Dependabot prüft die Bibliotheken deines Projekts automatisch auf bekannte Sicherheitslücken und veraltete Versionen und schlägt per Pull Request Updates vor.",
+    expertExplanation:
+      "Dependabot ist in GitHub integriert und überwacht deine Abhängigkeiten. Es erzeugt Security-Alerts bei bekannten Schwachstellen und kann automatisch Pull Requests mit Versions-Updates öffnen. So bleiben Projekte ohne manuellen Aufwand auf einem sicheren, aktuellen Stand — du prüfst und mergest die Vorschläge nur noch.",
+    syntax: ".github/dependabot.yml",
+    copyCommand: "mkdir -p .github",
+    whenToUse: ["Sicherheitslücken in Abhängigkeiten früh erkennen", "Updates regelmäßig und kontrolliert einspielen"],
+    risks: ["Automatische Updates ohne Tests können etwas brechen — CI absichern"],
+    commonMistakes: ["Dependabot-PRs ungeprüft und ohne Tests mergen"],
+    relatedSlugs: ["github-actions", "pull-request"],
+  },
+  {
+    slug: "codeql-secret-scanning",
+    title: "CodeQL & Secret Scanning — Code absichern",
+    category: "security",
+    age16Summary:
+      "CodeQL durchsucht deinen Code automatisch nach Sicherheitslücken, und Secret Scanning erkennt versehentlich veröffentlichte Zugangsdaten wie API-Schlüssel.",
+    expertExplanation:
+      "CodeQL ist GitHubs Engine für statische Code-Analyse (Code Scanning): Sie findet Schwachstellenmuster im Quellcode und meldet sie im Security-Tab. Secret Scanning durchsucht Repository und Historie nach Tokens und Schlüsseln und kann bei vielen Anbietern eine automatische Sperrung auslösen. Beide gehören zur kostenlosen Sicherheitsausstattung öffentlicher Repos.",
+    syntax: "# .github/workflows/codeql.yml",
+    whenToUse: ["Sicherheitslücken automatisiert finden", "Versehentlich committete Secrets aufspüren"],
+    risks: ["Ein gefundenes Secret muss sofort rotiert werden — Löschen allein genügt nicht"],
+    commonMistakes: ["Auf Secret Scanning verlassen, statt Secrets von vornherein per .gitignore auszuschließen"],
+    relatedSlugs: ["ssh-keys", "gitignore", "dependabot"],
+  },
+  {
+    slug: "github-api",
+    title: "GitHub API — programmatisch auf GitHub zugreifen",
+    category: "github-api",
+    age16Summary:
+      "Über die GitHub API können Programme automatisch Daten von GitHub lesen und schreiben — etwa Repositories, Issues oder Releases — ohne die Weboberfläche.",
+    expertExplanation:
+      "GitHub bietet eine REST- und eine GraphQL-API. Damit lassen sich nahezu alle Aktionen automatisieren: Repos abfragen, Issues anlegen, Releases erstellen und vieles mehr. Anfragen werden über Tokens authentifiziert und unterliegen Rate Limits. Genau diese API nutzt „What's in it?“ serverseitig, um öffentliche Repo-Metadaten zu lesen.",
+    syntax: "GET https://api.github.com/repos/owner/repo",
+    copyCommand: "curl https://api.github.com/repos/vercel/next.js",
+    whenToUse: ["Wiederkehrende GitHub-Aufgaben automatisieren", "Daten für eigene Tools abrufen"],
+    risks: ["Tokens niemals im Client offenlegen", "Rate Limits beachten (mit Token deutlich höher)"],
+    commonMistakes: ["Ohne Token gegen das niedrige Limit von 60 Anfragen/Stunde laufen"],
+    relatedSlugs: ["github-cli", "ssh-keys"],
+  },
+  {
+    slug: "webhooks",
+    title: "Webhooks — auf GitHub-Ereignisse reagieren",
+    category: "github-api",
+    age16Summary:
+      "Ein Webhook benachrichtigt automatisch ein anderes System, sobald in deinem Repository etwas passiert — zum Beispiel ein Push oder ein neuer Pull Request.",
+    expertExplanation:
+      "Webhooks senden bei definierten Ereignissen eine HTTP-Anfrage an eine von dir hinterlegte URL. So lassen sich externe Systeme in Echtzeit anbinden, etwa Chat-Benachrichtigungen oder eigene Deployment-Server. Die Nutzlast ist signiert, sodass der Empfänger die Echtheit prüfen kann.",
+    syntax: "Settings → Webhooks → Add webhook",
+    whenToUse: ["Externe Dienste bei Repo-Ereignissen automatisch informieren", "Eigene Automatisierung außerhalb von Actions"],
+    risks: ["Signatur prüfen, sonst kann jeder gefälschte Ereignisse senden"],
+    commonMistakes: ["Die Webhook-Signatur nicht validieren"],
+    relatedSlugs: ["github-api", "github-actions"],
+  },
+  {
+    slug: "lizenzen",
+    title: "Open-Source-Lizenzen verstehen",
+    category: "repo-management",
+    age16Summary:
+      "Eine Lizenz legt fest, ob und wie andere deinen Code nutzen, ändern und weitergeben dürfen. Ohne Lizenz ist Code rechtlich nicht frei nutzbar.",
+    expertExplanation:
+      "Permissive Lizenzen wie MIT oder Apache 2.0 erlauben nahezu jede Nutzung, solange der Lizenztext erhalten bleibt. Copyleft-Lizenzen wie die GPL verlangen, dass abgeleitete Werke unter derselben Lizenz stehen. Fehlt eine Lizenz, gilt automatisch das volle Urheberrecht — andere dürfen den Code dann nicht legal verwenden, selbst wenn er öffentlich ist.",
+    syntax: "LICENSE",
+    whenToUse: ["Bevor du ein Projekt veröffentlichst", "Wenn du fremden Code einsetzen willst"],
+    risks: ["Ohne Lizenz dürfen andere deinen Code nicht nutzen", "Inkompatible Lizenzen können rechtliche Probleme schaffen"],
+    commonMistakes: ["Ein öffentliches Repo ohne LICENSE-Datei veröffentlichen"],
+    relatedSlugs: ["projekt-veroeffentlichen", "gitignore"],
+  },
+  {
+    slug: "organisationen",
+    title: "GitHub-Organisationen & Teams",
+    category: "repo-management",
+    age16Summary:
+      "Eine Organisation bündelt mehrere Repositories und Mitglieder unter einem gemeinsamen Konto — die Grundlage für Teamarbeit und Unternehmen auf GitHub.",
+    expertExplanation:
+      "Organisationen trennen persönliche von gemeinschaftlichen Projekten und bieten feingranulare Rechteverwaltung über Teams. Mit Rollen, geschützten Branches und erforderlichen Reviews lässt sich sicherstellen, dass größere Gruppen geordnet und nachvollziehbar zusammenarbeiten. Rechte sollten nach dem Prinzip der minimalen Berechtigung vergeben werden.",
+    syntax: "github.com/organizations/new",
+    whenToUse: ["Mehrere Personen arbeiten dauerhaft zusammen", "Projekte eines Unternehmens bündeln"],
+    risks: ["Zu weit vergebene Rechte erhöhen das Sicherheitsrisiko"],
+    commonMistakes: ["Allen Mitgliedern Admin-Rechte geben"],
+    relatedSlugs: ["pull-request", "ssh-keys"],
+  },
+  {
+    slug: "codespaces",
+    title: "GitHub Codespaces — Entwicklungsumgebung in der Cloud",
+    category: "repo-management",
+    age16Summary:
+      "Codespaces startet eine vollständige Entwicklungsumgebung direkt im Browser oder Editor — ohne dass du lokal etwas installieren musst.",
+    expertExplanation:
+      "Ein Codespace ist eine konfigurierbare, cloudbasierte Entwicklungsumgebung auf Basis von Containern. Über eine devcontainer-Konfiguration legst du Werkzeuge und Abhängigkeiten fest, sodass alle Mitwirkenden dieselbe, reproduzierbare Umgebung erhalten. Das senkt die Einstiegshürde erheblich, besonders bei komplexen Setups.",
+    syntax: ".devcontainer/devcontainer.json",
+    whenToUse: ["Schnell an einem Projekt mitarbeiten ohne lokale Einrichtung", "Einheitliche Umgebung im Team sicherstellen"],
+    risks: ["Cloud-Nutzung kann je nach Plan Kosten verursachen"],
+    commonMistakes: ["Geheimnisse in die devcontainer-Konfiguration schreiben statt als Secrets zu hinterlegen"],
+    relatedSlugs: ["github-cli", "gitignore"],
+  },
+  {
+    slug: "github-copilot",
+    title: "GitHub Copilot — KI-Unterstützung beim Coden",
+    category: "repo-management",
+    age16Summary:
+      "GitHub Copilot schlägt dir während des Schreibens Code vor und beantwortet Fragen — wie eine KI-Assistenz direkt in deinem Editor.",
+    expertExplanation:
+      "Copilot ist ein KI-gestützter Assistent, der auf Basis des Kontexts Code-Vorschläge macht, Funktionen vervollständigt und im Chat Fragen beantwortet. Vorschläge sind Hilfen, keine Garantie für Korrektheit oder Sicherheit — du bleibst verantwortlich und solltest generierten Code prüfen, testen und verstehen.",
+    syntax: "# Erweiterung im Editor installieren",
+    whenToUse: ["Routinecode schneller schreiben", "Unbekannte APIs explorativ kennenlernen"],
+    risks: ["Vorschläge können Fehler oder unsichere Muster enthalten", "Nicht ungeprüft übernehmen"],
+    commonMistakes: ["Generierten Code ohne Verständnis und Tests übernehmen"],
+    relatedSlugs: ["github-cli", "github-actions"],
+  },
 ];
 
 export function getKnowledgeItem(slug: string): GitHubKnowledgeItem | undefined {

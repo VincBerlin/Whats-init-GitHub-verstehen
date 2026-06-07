@@ -5,13 +5,8 @@ import "./globals.css";
 import HeaderSearch from "@/components/HeaderSearch";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageToggle from "@/components/LanguageToggle";
-import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  // PHASE-9: absolute base so canonical/OG/sitemap URLs resolve correctly.
-  // Full /de//en routes + hreflang are deferred until localized content exists (RISK-009);
-  // the cookie-based language toggle does NOT create duplicate indexable URLs.
-  metadataBase: new URL(siteUrl()),
   title: { default: "What's in it? — GitHub Repositories verstehen", template: "%s | What's in it?" },
   description: "Verstehe GitHub-Repositories schneller: Was es ist, wofür du es brauchst und wie du es einsetzt.",
   keywords: ["github", "repository", "analyse", "open source", "developer tools"],
@@ -51,8 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex items-center gap-4 sm:gap-5 text-sm text-slate-400">
               <Link href="/what-is-github" className="hidden lg:inline hover:text-slate-200 transition-colors">Was ist GitHub?</Link>
               <Link href="/github" className="hidden sm:inline hover:text-slate-200 transition-colors">Git &amp; GitHub</Link>
-              <Link href="/blog" className="hidden md:inline hover:text-slate-200 transition-colors">Blog</Link>
-              <Link href="/tools" className="hidden lg:inline hover:text-slate-200 transition-colors">Tools</Link>
+              <Link href="/github/shortcuts" className="hidden md:inline hover:text-slate-200 transition-colors">Shortcuts</Link>
               <Link href="/github/trending" className="hidden md:inline hover:text-slate-200 transition-colors">Discover</Link>
               <LanguageToggle />
               <ThemeToggle />
