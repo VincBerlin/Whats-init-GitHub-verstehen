@@ -8,6 +8,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();
   const staticPaths = [
     "",
+    "/what-is-whats-in-it",
+    "/what-is-github",
     "/github",
     "/github/shortcuts",
     "/github/commands",
