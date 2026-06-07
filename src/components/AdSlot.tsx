@@ -40,18 +40,19 @@ export default function AdSlot({ placement, width = 300, height = 250, slotId }:
     );
   }
 
+  // PHASE-8: ads disabled → in production render NOTHING (no empty ad frames for
+  // AdSense review / users). Only in development show a labelled placeholder so
+  // developers can see where slots will appear.
+  if (process.env.NODE_ENV === "production") return null;
+
   return (
     <div
-      className={`${wrapper} rounded-xl border border-slate-700/40 bg-slate-800/20 overflow-hidden`}
+      className={`${wrapper} rounded-xl border border-dashed border-slate-700/40 bg-slate-800/10 overflow-hidden`}
       style={{ width, height, maxWidth: "100%" }}
-      aria-label="Werbeplatz (inaktiv)"
+      aria-hidden="true"
     >
       <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-700">
-        <svg className="w-8 h-8 opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <rect x="2" y="3" width="20" height="18" rx="2" strokeWidth="1.5" />
-          <line x1="2" y1="9" x2="22" y2="9" strokeWidth="1.5" />
-        </svg>
-        <span className="text-xs opacity-40">Werbeplatz</span>
+        <span className="text-xs opacity-40">Werbeplatz (nur Dev sichtbar): {placement}</span>
       </div>
     </div>
   );
