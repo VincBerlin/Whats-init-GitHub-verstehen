@@ -41,6 +41,33 @@ test("knowledge search route works for a term", async ({ page }) => {
   await expect(page.locator("h1")).toContainText("git push");
 });
 
+test("authority pages load", async ({ page }) => {
+  await page.goto("/what-is-github");
+  await expect(page.locator("h1")).toContainText("Was ist GitHub");
+  await page.goto("/what-is-whats-in-it");
+  await expect(page.locator("h1")).toContainText("What's in it");
+});
+
+test("blog hub and an article load", async ({ page }) => {
+  await page.goto("/blog");
+  await expect(page.locator("h1")).toContainText("Blog");
+  await page.goto("/blog/merge-konflikt-loesen");
+  await expect(page.locator("h1")).toContainText("Merge-Konflikt");
+});
+
+test("tools load and debugger matches an error", async ({ page }) => {
+  await page.goto("/tools");
+  await expect(page.locator("h1")).toContainText("Tools");
+
+  await page.goto("/tools/debugger");
+  await page.getByPlaceholder(/Fehlermeldung/).fill("git@github.com: Permission denied (publickey)");
+  await expect(page.getByText("Permission denied (publickey)").first()).toBeVisible();
+
+  await page.goto("/tools/ai-credit-calculator");
+  await page.getByPlaceholder(/Text oder Prompt/).fill("Hallo Welt, das ist ein Test.");
+  await expect(page.getByText(/Tokens/).first()).toBeVisible();
+});
+
 test("a knowledge detail page loads", async ({ page }) => {
   await page.goto("/github/was-ist-git");
   await expect(page.locator("h1")).toContainText("Was ist Git");
