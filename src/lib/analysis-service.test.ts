@@ -71,6 +71,13 @@ describe("cache-first flow", () => {
     if (r2.status === "ok") expect(r2.source).toBe("cache");
     expect(a.calls()).toBe(1); // ARCH-007: no second LLM call on hit
 
+    // PHASE-5 (SSR cached analysis): a cache hit returns BOTH analysis and
+    // repoMetadata so the page can be rendered server-side without any LLM/GitHub call.
+    if (r2.status === "ok") {
+      expect(r2.analysis).toBeTruthy();
+      expect(r2.repoMetadata).toBeTruthy();
+    }
+
     const cached = await stores.cache.get("vercel/next.js");
     expect(cached?.access_count).toBe(1);
   });
