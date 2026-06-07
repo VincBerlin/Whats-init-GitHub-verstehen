@@ -5,8 +5,13 @@ import "./globals.css";
 import HeaderSearch from "@/components/HeaderSearch";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageToggle from "@/components/LanguageToggle";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
+  // PHASE-9: absolute base so canonical/OG/sitemap URLs resolve correctly.
+  // Full /de//en routes + hreflang are deferred until localized content exists (RISK-009);
+  // the cookie-based language toggle does NOT create duplicate indexable URLs.
+  metadataBase: new URL(siteUrl()),
   title: { default: "What's in it? — GitHub Repositories verstehen", template: "%s | What's in it?" },
   description: "Verstehe GitHub-Repositories schneller: Was es ist, wofür du es brauchst und wie du es einsetzt.",
   keywords: ["github", "repository", "analyse", "open source", "developer tools"],
