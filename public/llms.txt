@@ -1,0 +1,35 @@
+# What's in it?
+
+> Kostenloser, werbefinanzierter GitHub Repository Intelligence & Knowledge Hub auf
+> Deutsch. Analysiert öffentliche GitHub-Repositories (über OpenRouter/Gemini, nur bei
+> Cache-Miss) und bietet strukturiertes Git/GitHub-Wissen sowie eine wöchentliche Top-10.
+> Keine Accounts, keine Paywall.
+
+## Hauptseiten
+- `Repository-Analyse -> https://whatsinit.app/`: GitHub-URL eingeben, strukturierte Analyse erhalten.
+- `Git & GitHub Wissen -> https://whatsinit.app/github`: Befehle, Workflows, Shortcuts.
+- `Shortcuts & Workflows -> https://whatsinit.app/github/shortcuts`: „Ich will …“-Abläufe zum Kopieren.
+- `Git-Befehle -> https://whatsinit.app/github/commands`: clone, add, commit, branch, merge, rebase, push, pull, revert.
+- `GitHub CLI -> https://whatsinit.app/github/cli`: mit gh aus dem Terminal arbeiten.
+- `GitHub Actions -> https://whatsinit.app/github/actions`: CI/CD, Workflows, Secrets.
+- `Weekly Top 10 -> https://whatsinit.app/github/trending`: wachstumsstarke Repos der Woche.
+
+## Wichtige Wissensseiten
+- `Was ist Git? -> https://whatsinit.app/github/was-ist-git`
+- `Was ist GitHub? -> https://whatsinit.app/github/was-ist-github`
+- `git clone -> https://whatsinit.app/github/git-clone`
+- `git add & commit -> https://whatsinit.app/github/git-add-commit`
+- `Branches -> https://whatsinit.app/github/git-branch`
+- `Merge -> https://whatsinit.app/github/git-merge`
+- `Rückgängig machen (revert & reset) -> https://whatsinit.app/github/rueckgaengig-machen`
+- `Projekt auf GitHub veröffentlichen -> https://whatsinit.app/github/projekt-veroeffentlichen`
+
+## Rechtliches
+- `Über uns -> https://whatsinit.app/about`
+- `Datenschutz -> https://whatsinit.app/privacy`
+- `Impressum -> https://whatsinit.app/impressum`
+
+## Hinweise
+- Sprache: Deutsch (de-DE). Zielgruppe: Einsteiger ab ~16 Jahren, Selbstlernende, Gründer, Entwickler.
+- Inhalte serverseitig gerendert (SSR/SSG) — kein JavaScript zum Lesen nötig.
+- Ersetze whatsinit.app durch die tatsächliche Produktions-Domain, falls abweichend.

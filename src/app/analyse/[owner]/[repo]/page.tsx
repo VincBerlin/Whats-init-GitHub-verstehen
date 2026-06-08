@@ -1,9 +1,16 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { analyzeRepo, fetchGitHubMeta } from "@/lib/analyze";
+import { openRouterAnalyzer } from "@/lib/openrouter";
+import { runAnalysis } from "@/lib/analysis-service";
+import { extractClientContext } from "@/lib/request-context";
+import { getStores } from "@/lib/stores";
+import type { AnalysisResult, GitHubRepo } from "@/types/analysis";
 import AnalysisCard from "@/components/AnalysisCard";
 import Sidebar from "@/components/Sidebar";
+
+export const runtime = "nodejs";
 
 interface PageProps {
   params: Promise<{ owner: string; repo: string }>;
@@ -24,21 +31,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function AnalysePage({ params }: PageProps) {
   const { owner, repo } = await params;
 
-  // Fetch GitHub meta + run analysis in parallel where possible
-  let analysis, ghData;
-  try {
-    [analysis, ghData] = await Promise.all([
-      analyzeRepo(owner, repo),
-      fetchGitHubMeta(owner, repo),
-    ]);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unbekannter Fehler";
-    if (message.includes("404") || message.includes("GitHub API error: 404")) {
-      notFound();
-    }
-    // Surface the error to the error boundary
-    throw err;
+  // Cache-first + guarded analysis (PHASE-2): a crawler/bot GET cannot trigger a
+  // new (cost-incurring) analysis, but cached pages render for everyone (SEO).
+  const client = extractClientContext(await headers());
+  const result = await runAnalysis(
+    { input: `${owner}/${repo}`, client },
+    { stores: getStores(), analyzer: openRouterAnalyzer },
+  );
+
+  if (result.status === "analysis_in_progress") {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+        <h1 className="text-2xl font-semibold text-slate-100 mb-3">Analyse läuft …</h1>
+        <p className="text-slate-400 mb-6">
+          {owner}/{repo} wird gerade analysiert. Bitte lade die Seite in wenigen Sekunden neu.
+        </p>
+        <Link href={`/analyse/${owner}/${repo}`} className="text-blue-400 hover:text-blue-300 underline">
+          Erneut laden
+        </Link>
+      </div>
+    );
   }
+
+  if (result.status === "error") {
+    if (result.code === "github_not_found") notFound();
+    throw new Error(result.message);
+  }
+
+  const analysis = result.analysis as AnalysisResult;
+  const ghData = result.repoMetadata as GitHubRepo;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -66,7 +87,6 @@ export default async function AnalysePage({ params }: PageProps) {
             data={analysis}
             owner={owner}
             repo={repo}
-            stars={ghData.stargazers_count}
             avatarUrl={ghData.owner.avatar_url}
           />
         </div>
