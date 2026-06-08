@@ -85,6 +85,16 @@ test("tools load and debugger matches an error", async ({ page }) => {
   await page.getByPlaceholder(/Fehlermeldung/).fill("git@github.com: Permission denied (publickey)");
   await expect(page.getByText("Permission denied (publickey)").first()).toBeVisible();
 
+  // SEC-006: a destructive fix (git reset --hard) shows a visible danger warning.
+  await page.getByPlaceholder(/Fehlermeldung/).fill("error: Your local changes to the following files would be overwritten by merge");
+  await expect(page.getByText(/⚠ Achtung/).first()).toBeVisible();
+  await expect(page.getByText(/unwiderruflich/i).first()).toBeVisible();
+
+  // SEC-006: the history-rewrite (git filter-repo) danger pattern also shows the warning.
+  await page.getByPlaceholder(/Fehlermeldung/).fill("remote: error: GH001: Large files detected. File data.csv is 142.00 MB; this exceeds GitHub's file size limit of 100 MB");
+  await expect(page.getByText(/⚠ Achtung/).first()).toBeVisible();
+  await expect(page.getByText(/Historie neu/i).first()).toBeVisible();
+
   await page.goto("/tools/ai-credit-calculator");
   await page.getByPlaceholder(/Text oder Prompt/).fill("Hallo Welt, das ist ein Test.");
   await expect(page.getByText(/Tokens/).first()).toBeVisible();
