@@ -8,7 +8,7 @@
 **Feature:** `homepage-tools-discovery`
 **Repo:** `/Users/vincentschnetzer/Documents/AI/Whatsinit/whats-in-it`
 **Branch:** `feature/homepage-tools-discovery`
-**Status:** user-confirmed
+Status: user-confirmed
 **Confirmed by user:** yes (2026-06-08, re-confirmed after Phase 0.16 council amendment; projection deferred)
 **PRD source of truth:** [`docs/prd/homepage-tools-discovery.prd.md`](../prd/homepage-tools-discovery.prd.md)
 **Authored:** 2026-06-08

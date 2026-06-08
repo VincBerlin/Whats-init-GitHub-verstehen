@@ -1,0 +1,30 @@
+{
+  "feature": "homepage-tools-discovery",
+  "canvas": "docs/canvas/homepage-tools-discovery.canvas.md",
+  "note": "Machine-readable allowed change scope (bare glob patterns) for the PRIL scope-check. Mirrors the Canvas 'Allowed change scope' section; bare paths avoid markdown backtick/bold parser artifacts.",
+  "allowed_globs": [
+    "src/app/page.tsx",
+    "src/app/layout.tsx",
+    "src/app/repositories/**",
+    "src/app/github/trending/page.tsx",
+    "src/components/home/**",
+    "src/components/DailyTopRepos.tsx",
+    "src/components/NicheFinds.tsx",
+    "src/components/TokenCalculator.tsx",
+    "src/components/DebuggerTool.tsx",
+    "src/lib/token-cost.ts",
+    "src/lib/error-matcher.ts",
+    "src/lib/trending.ts",
+    "src/lib/weekly-data.ts",
+    "src/lib/discovery/**",
+    "src/lib/i18n/**",
+    "src/lib/**/*.test.ts",
+    "src/data/error-patterns.ts",
+    "e2e/**",
+    "docs/**",
+    "config/claude/bin/**"
+  ],
+  "allowed_deletions": [
+    "src/app/layout 2.tsx"
+  ]
+}

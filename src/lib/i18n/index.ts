@@ -13,7 +13,7 @@ export function isLocale(v: string | undefined | null): v is Locale {
 export interface Dictionary {
   nav: { git: string; shortcuts: string; discover: string; about: string };
   hero: { badge: string; title: string; accent: string; subtitle: string };
-  search: { placeholder: string; button: string; examples: string };
+  search: { placeholder: string; button: string };
   langName: string;
 }
 
@@ -26,7 +26,7 @@ const de: Dictionary = {
     subtitle:
       "Was es ist, wofür du es brauchst und wie du es einsetzt — in Sekunden. Erkenne Risiken früh und nutze Open-Source-Projekte sicherer.",
   },
-  search: { placeholder: "Repository (owner/repo) oder Begriff (z. B. git push)", button: "Los →", examples: "Beispiele:" },
+  search: { placeholder: "Repository (owner/repo) oder Begriff (z. B. git push)", button: "Los →" },
   langName: "DE",
 };
 
@@ -39,7 +39,7 @@ const en: Dictionary = {
     subtitle:
       "What it is, what you need it for and how to use it — in seconds. Spot risks early and use open-source projects more safely.",
   },
-  search: { placeholder: "Repository (owner/repo) or term (e.g. git push)", button: "Go →", examples: "Examples:" },
+  search: { placeholder: "Repository (owner/repo) or term (e.g. git push)", button: "Go →" },
   langName: "EN",
 };
 

@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+// PRIL scope-check: every changed file is within the feature's allowed scope.
+// Usage: plumbline-scope-check <feature> <changedFile...>
+//   (changed files may also be piped on stdin, one per line)
+import { readFileSync } from "node:fs";
+import { checkScope } from "./lib/pril-core.mjs";
+
+const [feature, ...argFiles] = process.argv.slice(2);
+if (!feature) {
+  console.error("usage: plumbline-scope-check <feature> <changedFile...>");
+  process.exit(2);
+}
+let files = argFiles;
+if (files.length === 0) {
+  try {
+    files = readFileSync(0, "utf8").split("\n").map((l) => l.trim()).filter(Boolean);
+  } catch {
+    files = [];
+  }
+}
+if (files.length === 0) {
+  console.error("scope-check: no changed files supplied (args or stdin)");
+  process.exit(2);
+}
+const scopePath = `docs/scope/${feature}.scope.json`;
+let scope;
+try {
+  scope = JSON.parse(readFileSync(scopePath, "utf8"));
+} catch {
+  console.error(`scope-check: MISSING scope ${scopePath}`);
+  process.exit(2);
+}
+const outOfScope = checkScope(files, scope);
+if (outOfScope.length === 0) {
+  console.log(`scope-check: PASS (${files.length} file(s) in scope per ${scopePath})`);
+  process.exit(0);
+}
+console.error(`scope-check: FAIL — out of scope:\n  ${outOfScope.join("\n  ")}`);
+process.exit(3);

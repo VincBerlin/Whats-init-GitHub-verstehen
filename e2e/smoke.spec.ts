@@ -30,6 +30,25 @@ test("knowledge hub pages load", async ({ page }) => {
   await expect(page.locator("h1")).toContainText("Weekly Top 10");
 });
 
+test("homepage embeds a usable Calculator and Debugger (FR-002/VCHK-001)", async ({ page }) => {
+  await page.goto("/");
+  // (FR-001 "no example-repo prompt line" is precisely covered by the source guard in
+  // homepage-structure.test.ts; a rendered-link check here would false-positive on
+  // legitimate discovery links like vercel/next.js. This test proves the usable embed.)
+
+  // Debugger embed must be usable ON the homepage: paste a real error → match card.
+  const dbg = page.getByPlaceholder(/Fehlermeldung/);
+  await expect(dbg).toBeVisible();
+  await dbg.fill("git@github.com: Permission denied (publickey)");
+  await expect(page.getByText("Permission denied (publickey)").first()).toBeVisible();
+
+  // Calculator embed must be usable ON the homepage: type text → token count reacts (0 → >0).
+  const calc = page.getByPlaceholder(/Text oder Prompt/);
+  await expect(calc).toBeVisible();
+  await calc.fill("Hallo Welt, das ist ein Test mit mehreren Wörtern.");
+  await expect(page.getByText(/Eingabe:\s*[1-9]/).first()).toBeVisible();
+});
+
 test("homepage shows discovery sections", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Daily Top 5" })).toBeVisible();

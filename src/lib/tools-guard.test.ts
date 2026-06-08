@@ -7,6 +7,7 @@ import { join } from "node:path";
 const TOOL_FILES = [
   "src/components/DebuggerTool.tsx",
   "src/components/TokenCalculator.tsx",
+  "src/components/home/HomepageTools.tsx",
   "src/lib/error-matcher.ts",
   "src/lib/token-cost.ts",
   "src/data/error-patterns.ts",

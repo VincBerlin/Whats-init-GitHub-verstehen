@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+// PRIL reality-check: the feature's evidence ledger meets the real-boundary floor,
+// carries no laundering tokens, and covers the required requirements.
+// Usage: plumbline-reality-check <feature> [--require REQ1,REQ2,...]
+import { readFileSync } from "node:fs";
+import { parseJsonl, checkReality } from "./lib/pril-core.mjs";
+
+const args = process.argv.slice(2);
+const feature = args[0];
+if (!feature) {
+  console.error("usage: plumbline-reality-check <feature> [--require REQ1,REQ2]");
+  process.exit(2);
+}
+const reqIdx = args.indexOf("--require");
+const required = reqIdx >= 0 && args[reqIdx + 1] ? args[reqIdx + 1].split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+const path = `docs/reality/${feature}.evidence.jsonl`;
+let entries;
+try {
+  entries = parseJsonl(readFileSync(path, "utf8"));
+} catch {
+  console.error(`reality-check: MISSING ledger ${path}`);
+  process.exit(2);
+}
+if (entries.length === 0) {
+  console.error(`reality-check: EMPTY ledger ${path}`);
+  process.exit(2);
+}
+const problems = checkReality(entries, required);
+if (problems.length === 0) {
+  console.log(`reality-check: PASS (${entries.length} entries at floor${required.length ? `; required ${required.join(",")} covered` : ""})`);
+  process.exit(0);
+}
+console.error(`reality-check: FAIL —\n  ${problems.join("\n  ")}`);
+process.exit(3);
