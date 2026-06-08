@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { searchTerms, type SearchTerm } from "@/lib/search-terms";
@@ -13,15 +14,10 @@ export default function HeaderSearch() {
 
   const results = useMemo(() => searchTerms(value), [value]);
 
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
+  const onValueChange = (nextValue: string) => {
+    setValue(nextValue);
+    setActiveIdx(0);
+  };
 
   const go = (term: SearchTerm) => {
     router.push(term.url);
@@ -45,6 +41,17 @@ export default function HeaderSearch() {
       setOpen(false);
     }
   };
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
   const showDropdown = open && value.trim().length > 0;
 

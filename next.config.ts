@@ -5,9 +5,7 @@ const nextConfig: NextConfig = {
   // (= `next start`), which is the canonical, fully-supported start command and
   // keeps node_modules. Standalone output is incompatible with `next start`.
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "avatars.githubusercontent.com" },
-    ],
+    remotePatterns: [{ protocol: "https", hostname: "avatars.githubusercontent.com" }],
   },
   async redirects() {
     return [
