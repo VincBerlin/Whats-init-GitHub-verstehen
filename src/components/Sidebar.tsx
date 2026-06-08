@@ -1,14 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import AdSlot from "./AdSlot";
 
 const TOC_ITEMS = [
-  { id: "overview",       label: "Übersicht" },
-  { id: "recommendation", label: "Empfehlung" },
-  { id: "installation",   label: "Installation" },
-  { id: "ai-prompts",     label: "KI-Befehle" },
-  { id: "deep-dive",      label: "Deep Dive" },
-  { id: "related-topics", label: "Verwandte Begriffe" },
+  { id: "overview",     label: "Übersicht" },
+  { id: "quality",      label: "Qualität" },
+  { id: "usecases",     label: "Einsatz" },
+  { id: "concerns",     label: "Hinweise" },
+  { id: "installation", label: "Installation" },
+  { id: "commands",     label: "Befehle" },
+  { id: "ai-prompts",   label: "KI-Befehle" },
+  { id: "faq",          label: "FAQ" },
 ];
 
 export default function Sidebar() {
@@ -71,6 +75,27 @@ export default function Sidebar() {
             </button>
           ))}
         </nav>
+      </div>
+
+      {/* Learn & Wiki shortcuts */}
+      <div className="rounded-xl border border-slate-700/60 bg-slate-800/30 p-4">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          Mehr entdecken
+        </p>
+        <div className="space-y-2">
+          <Link
+            href="/wiki/mcp"
+            className="block text-sm px-3 py-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition-all"
+          >
+            Lexikon öffnen
+          </Link>
+          <Link
+            href="/lernen"
+            className="block text-sm px-3 py-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition-all"
+          >
+            Zur Academy
+          </Link>
+        </div>
       </div>
 
       {/* Ad Slot 300×600 */}

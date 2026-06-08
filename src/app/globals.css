@@ -96,6 +96,19 @@ html.light nav.bg-slate-950\/80 { background-color: rgba(255, 255, 255, 0.85); }
 html.light pre { color: #0369a1 !important; }
 html.light pre code { color: #0369a1 !important; }
 
+/* Accent text — darken pale/saturated accents for readable light-mode contrast
+   (FR-016/AC-013). The -200/-300/-400 accents are too light on white surfaces. */
+html.light .text-blue-400, html.light .text-blue-300 { color: #2563eb; }
+html.light .text-violet-400, html.light .text-violet-300 { color: #7c3aed; }
+html.light .text-purple-400 { color: #9333ea; }
+html.light .text-emerald-400 { color: #059669; }
+html.light .text-teal-400 { color: #0d9488; }
+html.light .text-cyan-400 { color: #0891b2; }
+html.light .text-sky-300 { color: #0369a1; }
+html.light .text-amber-400, html.light .text-amber-300, html.light .text-amber-200 { color: #b45309; }
+html.light .text-red-400, html.light .text-red-200 { color: #dc2626; }
+html.light .text-pink-400 { color: #db2777; }
+
 /* Prose (Deep Dive / Wiki content) */
 .prose-dark p { color: var(--muted); line-height: 1.75; margin-bottom: 1rem; }
 .prose-dark h2 { color: var(--text); font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }

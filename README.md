@@ -107,7 +107,7 @@ Weniger Suchzeit. Mehr Umsetzungszeit.
 4. Nach dem Deploy ist der Healthcheck unter `/api/health` erreichbar.
 
 ### Warum dieses Setup production-ready ist
-- `next.config.ts` nutzt `output: "standalone"` für schlankere, stabilere Runtime-Artefakte.
+- Start via `npm run start` (`next start`) — kanonischer, voll unterstützter Railway-Startbefehl.
 - `railway.json` definiert Startkommando + Healthcheck explizit.
 - Mit `GITHUB_TOKEN` sind GitHub-API-Limits deutlich seltener ein Problem.
 
