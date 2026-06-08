@@ -47,6 +47,9 @@ test("homepage embeds a usable Calculator and Debugger (FR-002/VCHK-001)", async
   await expect(calc).toBeVisible();
   await calc.fill("Hallo Welt, das ist ein Test mit mehreren Wörtern.");
   await expect(page.getByText(/Eingabe:\s*[1-9]/).first()).toBeVisible();
+
+  // VCHK-003: the placeholder-pricing disclaimer is visible (no official-bill claim).
+  await expect(page.getByText(/Beispielwerte/).first()).toBeVisible();
 });
 
 test("homepage shows discovery sections", async ({ page }) => {
@@ -85,6 +88,8 @@ test("tools load and debugger matches an error", async ({ page }) => {
   await page.goto("/tools/ai-credit-calculator");
   await page.getByPlaceholder(/Text oder Prompt/).fill("Hallo Welt, das ist ein Test.");
   await expect(page.getByText(/Tokens/).first()).toBeVisible();
+  // VCHK-003: example-rate disclaimer must be boundary-verified on the standalone route too.
+  await expect(page.getByText(/Beispielwerte/).first()).toBeVisible();
 });
 
 test("a knowledge detail page loads", async ({ page }) => {
