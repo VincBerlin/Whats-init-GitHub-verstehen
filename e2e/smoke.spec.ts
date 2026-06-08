@@ -90,6 +90,29 @@ test("homepage shows discovery sections", async ({ page }) => {
   await expect(page.getByText(/seit gestern/)).toHaveCount(0);
 });
 
+test("homepage, tools and discovery make NO LLM/external network call (VAL-005/NFR-001-003)", async ({ page }) => {
+  // Runtime boundary proof (not a source grep): watch every outbound request and fail if
+  // any hits an LLM/AI provider while a user browses + uses the embedded tools.
+  const llmHosts = /openrouter|api\.openai|anthropic|googleapis|generativelanguage|x\.ai|mistral/i;
+  const offenders: string[] = [];
+  page.on("request", (req) => {
+    if (llmHosts.test(req.url())) offenders.push(req.url());
+  });
+
+  await page.goto("/");
+  // Actually use the embedded zero-LLM tools.
+  await page.getByPlaceholder(/Fehlermeldung/).fill("git@github.com: Permission denied (publickey)");
+  await page.getByPlaceholder(/Text oder Prompt/).fill("Hallo Welt, ein Test mit mehreren Wörtern.");
+  // And the discovery + standalone tool surfaces.
+  await page.goto("/repositories");
+  await page.goto("/tools/debugger");
+  await page.getByPlaceholder(/Fehlermeldung/).fill("fatal: not a git repository");
+  await page.goto("/tools/ai-credit-calculator");
+  await page.getByPlaceholder(/Text oder Prompt/).fill("noch ein Test");
+
+  expect(offenders, `unexpected LLM/external calls: ${offenders.join(", ")}`).toEqual([]);
+});
+
 test("knowledge search route works for a term", async ({ page }) => {
   await page.goto("/github/search?q=git%20push");
   await expect(page.locator("h1")).toContainText("git push");
