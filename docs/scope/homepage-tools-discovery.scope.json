@@ -29,6 +29,7 @@
     "config/claude/bin/**"
   ],
   "allowed_deletions": [
-    "src/app/layout 2.tsx"
+    "src/app/layout 2.tsx",
+    "src/data/blog 2.ts"
   ]
 }

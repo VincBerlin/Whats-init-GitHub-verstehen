@@ -61,4 +61,11 @@ describe("getNiche re-filters giants on the display path (FR-006 defense-in-dept
     expect(items.some((i) => i.repo === "giant")).toBe(false);
     expect(items.some((i) => i.repo === "gem")).toBe(true);
   });
+
+  it("getNiche derives isFallback from stored rows (symmetry)", async () => {
+    await getStores().rankings.replacePeriod("niche", "2026-06-23", "2026-06-23", [
+      row({ period_type: "niche", rank: 1, repo_key: "a/n", owner: "a", repo: "n", stars: 400, is_fallback: true }),
+    ]);
+    expect((await getNiche()).isFallback).toBe(true);
+  });
 });

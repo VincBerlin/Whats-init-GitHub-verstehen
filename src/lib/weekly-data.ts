@@ -73,5 +73,7 @@ export async function getDailyTop(): Promise<{ items: WeeklyDisplayItem[]; isFal
 // other write path (seed/migration/future job) can never be displayed (TERM-004/FR-006).
 export async function getNiche(): Promise<{ items: WeeklyDisplayItem[]; isFallback: boolean }> {
   const items = (await getRanking("niche")).filter((i) => i.stars <= NICHE_MAX_STARS);
-  return { items: items.slice(0, 5), isFallback: false };
+  // Symmetric with getDailyTop/getWeeklyTop: derive the honesty flag from the stored
+  // rows so any future sample-flagged niche state stays honestly labeled.
+  return { items: items.slice(0, 5), isFallback: items[0]?.isFallback ?? false };
 }
