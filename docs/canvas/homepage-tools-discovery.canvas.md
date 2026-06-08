@@ -52,6 +52,7 @@ this list is out of scope and requires a new requirement / user decision.
 - `src/lib/debugger/*` **or** `src/lib/error-matcher.ts` — debugger matching engine
   (today the engine is `src/lib/error-matcher.ts`; PRD §14 suggests `src/lib/debugger/`)
 - `src/data/error-patterns.ts` — debug pattern DB (extend to the DBG-001..012 set)
+- `src/data/authority.ts` — discovery FAQ copy (Daily/Niche counts honesty) *(scope extended by explicit user GO 2026-06-08, Phase-4; resolves CONTRA-001)*
 - `src/app/repositories/*` — new discovery hub route (does **not** exist yet)
 - `nav in src/app/layout.tsx` — header/footer nav links
 - tests (`*.test.ts`, e2e specs)

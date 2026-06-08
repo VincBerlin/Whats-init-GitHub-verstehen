@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { dailyScore, nicheQualityScore, rankBy, dailyReason, nicheReason, type DiscoveryCandidate } from "./scoring";
+import { dailyScore, nicheQualityScore, nicheEligible, NICHE_MAX_STARS, rankBy, dailyReason, nicheReason, type DiscoveryCandidate } from "./scoring";
 
 // TEST-006 / STORY-003 — niche must not be star-dominant
 describe("nicheQualityScore", () => {
@@ -14,6 +14,24 @@ describe("nicheQualityScore", () => {
     const withMeta = nicheQualityScore(smallQuality);
     const withoutMeta = nicheQualityScore({ ...smallQuality, description: null, language: null });
     expect(withMeta).toBeGreaterThan(withoutMeta);
+  });
+});
+
+// TERM-004 / TEST-009 — niche hard-excludes giants at the selector boundary.
+describe("nicheEligible (>50k hard-exclude)", () => {
+  const mk = (stars: number): DiscoveryCandidate => ({ owner: "a", repo: "r", stars, forks: 10, language: "TS", description: "x" });
+  it("excludes a >50k giant", () => {
+    expect(nicheEligible(mk(50001))).toBe(false);
+    expect(nicheEligible(mk(90000))).toBe(false);
+  });
+  it("includes repos at or below the threshold", () => {
+    expect(nicheEligible(mk(NICHE_MAX_STARS))).toBe(true);
+    expect(nicheEligible(mk(300))).toBe(true);
+  });
+  it("filtering removes giants before ranking (FILTER, not score nudge)", () => {
+    const pool = [mk(90000), mk(300), mk(3000)].filter(nicheEligible);
+    expect(pool.length).toBe(2);
+    expect(pool.some((c) => c.stars > NICHE_MAX_STARS)).toBe(false);
   });
 });
 

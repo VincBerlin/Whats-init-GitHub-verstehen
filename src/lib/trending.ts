@@ -6,6 +6,7 @@ import { rankTopRepositories, type RankCandidate } from "./trending-score";
 import {
   dailyReason,
   dailyScore,
+  nicheEligible,
   nicheQualityScore,
   nicheReason,
   rankBy,
@@ -168,16 +169,19 @@ export async function updateDailyDiscovery(
   }
   const isFallback = !hasHistory;
 
-  // 2) Daily Top 5 (popularity/engagement blend; momentum noted when history exists).
-  const daily = rankBy(disc, dailyScore, (c) => dailyReason(c), 5).map((r) => {
+  // 2) Daily Top 3 (popularity/engagement blend; momentum noted when history exists).
+  //    Daily is NOT giant-filtered — a popular repo may legitimately top the day.
+  const daily = rankBy(disc, dailyScore, (c) => dailyReason(c), 3).map((r) => {
     const d = deltaByKey.get(`${r.owner}/${r.repo}`.toLowerCase());
     const reason = d && d.stars > 0 ? `+${d.stars.toLocaleString("de-DE")} Stars seit gestern · ${dailyReason(r)}` : r.reason;
     return toRankingRow("daily", day, r, { isFallback, starsDelta: d?.stars ?? null, forksDelta: d?.forks ?? null, reason });
   });
   await deps.stores.rankings.replacePeriod("daily", day, day, daily);
 
-  // 3) Niche Finds (quality, not star-dominant).
-  const niche = rankBy(disc, nicheQualityScore, (c) => nicheReason(c), 10).map((r) => toRankingRow("niche", day, r));
+  // 3) Niche Top 5 (quality, not star-dominant). Giants (>50k stars) are HARD-EXCLUDED
+  //    at the selector boundary (TERM-004/TEST-009) before ranking, not merely down-scored.
+  const nichePool = disc.filter(nicheEligible);
+  const niche = rankBy(nichePool, nicheQualityScore, (c) => nicheReason(c), 5).map((r) => toRankingRow("niche", day, r));
   await deps.stores.rankings.replacePeriod("niche", day, day, niche);
 
   return { snapshotsCreated: candidates.length, dailyWritten: daily.length, nicheWritten: niche.length };

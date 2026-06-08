@@ -3,6 +3,7 @@
 // (NFR-001, FR-010/011, FR-017). Honest fallbacks; never fake data as real.
 import { WEEKLY_SEED_FALLBACK } from "@/data/trending-seed";
 import type { RankingPeriod } from "@/lib/ports";
+import { NICHE_MAX_STARS } from "@/lib/discovery/scoring";
 import { getStores } from "./stores";
 
 export interface WeeklyDisplayItem {
@@ -15,6 +16,7 @@ export interface WeeklyDisplayItem {
   stars: number;
   reason: string;
   analyseHref: string;
+  isFallback: boolean; // BLOCKER-002: must reach the UI so the honesty label can render
 }
 
 async function getRanking(period: RankingPeriod): Promise<WeeklyDisplayItem[]> {
@@ -30,6 +32,7 @@ async function getRanking(period: RankingPeriod): Promise<WeeklyDisplayItem[]> {
       stars: r.stars,
       reason: r.reason,
       analyseHref: `/analyse/${r.owner}/${r.repo}`,
+      isFallback: r.is_fallback ?? false, // preserve the stored honesty flag
     }));
   } catch {
     return [];
@@ -47,6 +50,7 @@ function seed(limit: number): WeeklyDisplayItem[] {
     stars: s.stars,
     reason: "Beispiel (noch keine Daten)",
     analyseHref: `/analyse/${s.owner}/${s.repo}`,
+    isFallback: true, // a seed is always a sample, never real data
   }));
 }
 
@@ -57,11 +61,17 @@ export async function getWeeklyTop(): Promise<{ items: WeeklyDisplayItem[]; isFa
 
 export async function getDailyTop(): Promise<{ items: WeeklyDisplayItem[]; isFallback: boolean }> {
   const items = await getRanking("daily");
-  return items.length > 0 ? { items: items.slice(0, 5), isFallback: false } : { items: seed(5), isFallback: true };
+  // BLOCKER-002: derive isFallback from the STORED rows (popularity-only first run
+  // with no 24h delta is_fallback:true), never hardcode false when DB rows exist.
+  return items.length > 0
+    ? { items: items.slice(0, 3), isFallback: items[0]?.isFallback ?? false }
+    : { items: seed(3), isFallback: true };
 }
 
 // Niche has no honest seed (it is a quality-ranking concept), so empty → no fake data.
+// Defensive cap at 5 + a read-side >50k re-filter so a giant reaching the store via any
+// other write path (seed/migration/future job) can never be displayed (TERM-004/FR-006).
 export async function getNiche(): Promise<{ items: WeeklyDisplayItem[]; isFallback: boolean }> {
-  const items = await getRanking("niche");
-  return { items, isFallback: false };
+  const items = (await getRanking("niche")).filter((i) => i.stars <= NICHE_MAX_STARS);
+  return { items: items.slice(0, 5), isFallback: false };
 }

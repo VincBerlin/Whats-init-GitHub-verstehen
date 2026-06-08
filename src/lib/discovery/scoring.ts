@@ -44,6 +44,15 @@ export function nicheQualityScore(c: DiscoveryCandidate): number {
   return Math.round((band + engagement + meta) * 100) / 100;
 }
 
+// TERM-004 / TEST-009: niche discovery hard-excludes giants. This is a FILTER at the
+// selector boundary (a giant never appears), not a score penalty (which would only
+// rank it lower). Daily Top is NOT filtered — popular giants may legitimately appear there.
+export const NICHE_MAX_STARS = 50000;
+
+export function nicheEligible(c: DiscoveryCandidate): boolean {
+  return Math.max(c.stars, 0) <= NICHE_MAX_STARS;
+}
+
 export interface ScoredCandidate extends DiscoveryCandidate {
   rank: number;
   score: number;

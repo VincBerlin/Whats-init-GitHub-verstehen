@@ -17,7 +17,7 @@ export default async function NicheFinds() {
         <p className="text-sm text-slate-500">Interesting repository discoveries are being prepared.</p>
       ) : (
         <ol className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {items.map((r) => (
+          {items.slice(0, 5).map((r) => (
             <li key={`${r.owner}-${r.repo}`}>
               <Link href={r.analyseHref} className="flex items-start gap-3 rounded-lg border border-slate-800/60 bg-slate-900/50 p-4 hover:border-slate-700/60 transition-colors">
                 <span className="text-sm font-bold text-slate-600 w-6 shrink-0">{r.rank}</span>

@@ -72,8 +72,8 @@ export const WHATS_IN_IT_PAGE: AuthorityPage = {
     {
       heading: "Repository-Entdeckung ohne KI-Kosten",
       paragraphs: [
-        "Auf der Startseite findest du drei Entdeckungs-Bereiche: Daily Top 5, Weekly Top 10 und Interesting Growth Repositories (Niche Finds). Diese Listen entstehen ausschließlich aus GitHub-Metadaten und einer deterministischen Bewertung — es wird dafür kein KI-Modell aufgerufen.",
-        "Wichtig ist uns Ehrlichkeit: Die Niche Finds bevorzugen bewusst hochwertige, funktionale Projekte im Wachstumsbereich statt einfach der größten Stern-Giganten. Solange für eine Liste noch keine echten Daten vorliegen, zeigen wir entweder eine klar als Beispiel markierte Auswahl oder einen ehrlichen Hinweis — niemals erfundene Ranglisten, die wie echte Daten aussehen.",
+        "Auf der Startseite findest du drei Entdeckungs-Bereiche: Daily Top 3, Weekly Top 10 und Interesting Growth Repositories (Niche Finds, Top 5). Diese Listen entstehen ausschließlich aus GitHub-Metadaten und einer deterministischen Bewertung — es wird dafür kein KI-Modell aufgerufen.",
+        "Wichtig ist uns Ehrlichkeit: Die Niche Finds bevorzugen bewusst hochwertige, funktionale Projekte im Wachstumsbereich und schließen sehr große Stern-Giganten (über 50.000 Sterne) bewusst aus. Solange für eine Liste noch keine echten Daten vorliegen, zeigen wir entweder eine klar als Beispiel markierte Auswahl oder einen ehrlichen Hinweis — niemals erfundene Ranglisten, die wie echte Daten aussehen.",
       ],
     },
     {

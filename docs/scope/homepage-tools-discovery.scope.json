@@ -20,6 +20,7 @@
     "src/lib/i18n/**",
     "src/lib/**/*.test.ts",
     "src/data/error-patterns.ts",
+    "src/data/authority.ts",
     "e2e/**",
     "docs/**",
     "config/claude/bin/**"

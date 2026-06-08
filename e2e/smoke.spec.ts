@@ -54,8 +54,13 @@ test("homepage embeds a usable Calculator and Debugger (FR-002/VCHK-001)", async
 
 test("homepage shows discovery sections", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Daily Top 5" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Daily Top 3" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Weekly Top 10" })).toBeVisible();
+
+  // BLOCKER-002: without a real 24h delta (no DB here → seed), the Daily list must be
+  // labeled a sample and must NOT claim fabricated movement.
+  await expect(page.getByText(/Beispiel-Auswahl/).first()).toBeVisible();
+  await expect(page.getByText(/seit gestern/)).toHaveCount(0);
 });
 
 test("knowledge search route works for a term", async ({ page }) => {
