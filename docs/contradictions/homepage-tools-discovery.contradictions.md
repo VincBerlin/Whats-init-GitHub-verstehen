@@ -57,3 +57,73 @@ increment pass. The Watcher cannot reclassify a PRIL failure; only the user can.
   no OpenRouter/LLM/network — boundary unchanged.
 - PRIL context-check PASS; reality-check PASS (14 entries at floor, required REQs covered);
   redact clean on the evidence ledger + traceability.
+
+## CONTRA-002 — out-of-scope edits: `next.config.ts`, `src/app/sitemap.ts`, `src/components/WeeklyTopRepos.tsx`, `src/data/knowledge.test.ts` (PHASE-5, iteration 5/7)
+
+- **Status:** RESOLVED 2026-06-08 — resolution #1 (extend + re-confirm scope), explicit user GO
+  via AskUserQuestion ("Extend scope, keep the fix"). Added `next.config.ts`, `src/app/sitemap.ts`,
+  `src/components/WeeklyTopRepos.tsx` to the Canvas allowed-scope + scope.json `allowed_globs`, and
+  broadened the test glob `src/lib/**/*.test.ts` → `src/**/*.test.ts` (matches the Canvas's
+  "tests (*.test.ts)" intent, covers `src/data/knowledge.test.ts`). scope-check re-run → exit 0.
+- **Gate:** PRIL `plumbline-scope-check homepage-tools-discovery` → **FAIL (exit 3)**.
+- **Failing output:**
+  `scope-check: FAIL — out of scope:`
+  `  next.config.ts`
+  `  src/app/sitemap.ts`
+  `  src/components/WeeklyTopRepos.tsx`
+  `  src/data/knowledge.test.ts`
+- **True-line-status:** contradiction (scope-governance, NOT value-drift).
+
+### What happened
+PHASE-5 implements VAL-006 / FR-011/012/013 (the `/repositories` hub + `/github/trending`
+redirect). Four edited files are **value-true and load-bearing** for that goal but are **not**
+in the user-confirmed Allowed change scope (`docs/scope/homepage-tools-discovery.scope.json`
+`allowed_globs`, mirroring the Canvas "Allowed change scope"):
+- `next.config.ts` — adds the `/github/trending → /repositories` permanent redirect (this IS
+  OPEN-001 / FR-013, the core of the increment).
+- `src/app/sitemap.ts` — repoints the dead `/github/trending` entry to `/repositories`
+  (prevents a broken sitemap URL).
+- `src/components/WeeklyTopRepos.tsx` — repoints the internal "Alle ansehen" link to
+  `/repositories`.
+- `src/data/knowledge.test.ts` — extends the no-OpenRouter guard to the `/repositories`
+  surface (this STRENGTHENS NG-007 / VAL-005 verification).
+The scope.json test glob is `src/lib/**/*.test.ts`, which does not match
+`src/data/knowledge.test.ts`; and there is no glob for `next.config.ts`, `src/app/sitemap.ts`,
+or `src/components/WeeklyTopRepos.tsx` (only `DailyTopRepos.tsx` / `NicheFinds.tsx` are listed).
+The prior CONTRA-001 user GO extended scope to `src/data/authority.ts` ONLY; it did not
+authorize these four files.
+
+### Why this threatens customer value
+It does not erode the VAL-006 value claim (the hub is honest, wired, no-LLM, thin-reuse —
+all verified). It erodes the **scope contract**: the Allowed change scope is a user-confirmed
+boundary. Accepting four out-of-scope edits — even benign, value-true ones — without
+reconfirmation normalizes scope drift and weakens the guard for a future increment where an
+out-of-scope file is NOT benign. This is the exact escalation CONTRA-001 established.
+
+### Required user decision (only the user may resolve)
+Choose one (each is an Allowed resolution):
+1. **Extend + re-confirm scope** — add `next.config.ts`, `src/app/sitemap.ts`,
+   `src/components/WeeklyTopRepos.tsx`, and a test glob covering `src/data/**/*.test.ts`
+   (or the specific file) to the Canvas "Allowed change scope" AND
+   `docs/scope/homepage-tools-discovery.scope.json` `allowed_globs`, with explicit GO. Then
+   re-run scope-check (must exit 0). (Recommended — the redirect/sitemap/link edits are
+   intrinsic to OPEN-001/FR-013 and the test edit strengthens VAL-005.)
+2. **Move the change** — relocate any edit into an already in-scope artifact (not feasible
+   for `next.config.ts` redirect and the sitemap — they are the right files).
+3. **Remove** the out-of-scope changes from this increment (would break FR-013: no redirect).
+
+### Forbidden shortcut
+Do NOT self-downgrade this scope-check FAIL to a "warning" / "known limitation" to let the
+increment pass. The Watcher cannot reclassify a PRIL failure; only the user can.
+
+### Not-at-issue (verified true & wired this iteration)
+- VAL-006 / VCHK-006: `/repositories` renders Daily 3 / Weekly 10 / Niche 5 + plain ranking
+  explanation ("Wie wird hier bewertet?", incl. >50k giant-exclusion copy); `/github/trending`
+  permanently redirects; nav reaches Repositories/Calculator/Debugger — verified by
+  redirects.test.ts + e2e (redirect follow + hub render) at real-boundary-smoke.
+- NG-004 (no rebuild): hub is a 63-line thin composition of existing
+  DailyTopRepos/WeeklyTopRepos/NicheFinds + static explanation; no architecture change.
+- NG-007 / VAL-005 (no LLM): `/repositories` surface imports no OpenRouter (grep + extended
+  knowledge.test.ts guard); `weekly-data` page-view path is DB-read-only.
+- PRIL context-check PASS; reality-check PASS (18 entries at floor; FR-011/012/013 covered);
+  redact clean on evidence ledger + traceability. vitest 191 pass re-verified by Watcher.

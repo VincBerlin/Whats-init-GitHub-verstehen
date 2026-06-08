@@ -55,6 +55,9 @@ this list is out of scope and requires a new requirement / user decision.
 - `src/data/authority.ts` — discovery FAQ copy (Daily/Niche counts honesty) *(scope extended by explicit user GO 2026-06-08, Phase-4; resolves CONTRA-001)*
 - `src/app/repositories/*` — new discovery hub route (does **not** exist yet)
 - `nav in src/app/layout.tsx` — header/footer nav links
+- `next.config.ts` — `/github/trending` → `/repositories` redirect *(scope extended by user GO 2026-06-08, Phase-5; resolves CONTRA-002)*
+- `src/app/sitemap.ts` — repoint the dead trending URL *(scope extended, CONTRA-002)*
+- `src/components/WeeklyTopRepos.tsx` — repoint internal link / `showMoreLink` prop *(scope extended, CONTRA-002)*
 - tests (`*.test.ts`, e2e specs)
 - docs (`docs/**`)
 

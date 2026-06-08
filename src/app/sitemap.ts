@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/github/commands",
     "/github/cli",
     "/github/actions",
-    "/github/trending",
+    "/repositories",
     "/about",
     "/contact",
     "/privacy",

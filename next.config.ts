@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
       { source: "/lernen", destination: "/github", permanent: true },
       { source: "/wiki", destination: "/github", permanent: true },
       { source: "/wiki/:slug*", destination: "/github", permanent: true },
+      // PHASE-5 (homepage-tools-discovery, OPEN-001): the standalone trending page is
+      // consolidated into the /repositories discovery hub.
+      { source: "/github/trending", destination: "/repositories", permanent: true },
     ];
   },
 };

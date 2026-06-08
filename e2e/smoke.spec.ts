@@ -26,8 +26,35 @@ test("knowledge hub pages load", async ({ page }) => {
   await page.goto("/github/shortcuts");
   await expect(page.locator("h1")).toContainText("Shortcuts");
 
+  // OPEN-001: /github/trending is consolidated into /repositories (permanent redirect).
   await page.goto("/github/trending");
-  await expect(page.locator("h1")).toContainText("Weekly Top 10");
+  await page.waitForURL(/\/repositories$/, { timeout: 10_000 });
+  await expect(page.locator("h1")).toContainText("Repositories entdecken");
+});
+
+test("repositories hub renders Daily/Weekly/Niche + a ranking explanation (FR-013/AC-007)", async ({ page }) => {
+  await page.goto("/repositories");
+  await expect(page.locator("h1")).toContainText("Repositories entdecken");
+  await expect(page.getByRole("heading", { name: "Daily Top 3" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Weekly Top 10" })).toBeVisible();
+  // All three discovery sections render (the Niche section heading even when its honest
+  // empty-state shows — niche has no seed by design, so items only appear with real data).
+  await expect(page.getByRole("heading", { name: "Interesting Growth Repositories" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Wie wird hier bewertet?" })).toBeVisible();
+  // Ranking explanation mentions the >50k giant exclusion (honest discovery).
+  await expect(page.getByText(/50\.000 Sterne/)).toBeVisible();
+});
+
+test("nav reaches Repositories, Calculator and Debugger (AC-009)", async ({ page }) => {
+  await page.goto("/");
+  // Header 'Repositories' link lands on the hub.
+  await page.getByRole("link", { name: "Repositories" }).first().click();
+  await page.waitForURL(/\/repositories$/, { timeout: 10_000 });
+  await expect(page.locator("h1")).toContainText("Repositories entdecken");
+
+  // Footer reaches the standalone Calculator + Debugger.
+  await expect(page.getByRole("link", { name: "Rechner" })).toHaveAttribute("href", "/tools/ai-credit-calculator");
+  await expect(page.getByRole("link", { name: "Debugger" })).toHaveAttribute("href", "/tools/debugger");
 });
 
 test("homepage embeds a usable Calculator and Debugger (FR-002/VCHK-001)", async ({ page }) => {

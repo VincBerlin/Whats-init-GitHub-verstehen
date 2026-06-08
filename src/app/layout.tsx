@@ -62,6 +62,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Link href="/wiki/agent" className="block rounded-md px-2 py-2 text-sm text-slate-300 hover:bg-slate-800">Autonomer Agent</Link>
                 </div>
               </div>
+              {/* Phase-5 (FR-012/AC-009): discovery hub reachable from the header. */}
+              <Link href="/repositories" className="inline-flex hover:text-slate-200 transition-colors">Repositories</Link>
+              <LanguageToggle />
               <ThemeToggle />
             </div>
           </div>
@@ -70,7 +73,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-slate-800/60 mt-24 py-8 text-center text-slate-600 text-sm">
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-4 text-slate-500">
             <Link href="/github" className="hover:text-slate-300 transition-colors">Git &amp; GitHub</Link>
-            <Link href="/github/trending" className="hover:text-slate-300 transition-colors">Weekly Top 10</Link>
+            <Link href="/repositories" className="hover:text-slate-300 transition-colors">Repositories</Link>
+            <Link href="/tools/ai-credit-calculator" className="hover:text-slate-300 transition-colors">Rechner</Link>
+            <Link href="/tools/debugger" className="hover:text-slate-300 transition-colors">Debugger</Link>
             <Link href="/about" className="hover:text-slate-300 transition-colors">Über uns</Link>
             <Link href="/contact" className="hover:text-slate-300 transition-colors">Kontakt</Link>
             <Link href="/privacy" className="hover:text-slate-300 transition-colors">Datenschutz</Link>

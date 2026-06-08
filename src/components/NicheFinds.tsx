@@ -3,14 +3,15 @@ import { getNiche } from "@/lib/weekly-data";
 
 // Vision PHASE-2 / FR-008, AC-007/AC-017 — "Interesting Growth Repositories".
 // Quality-ranked (not star-dominant). Honest empty state, never fake data.
-export default async function NicheFinds() {
+export default async function NicheFinds({ showMoreLink = true }: { showMoreLink?: boolean } = {}) {
   const { items } = await getNiche();
 
   return (
     <section className="text-left">
       <div className="flex items-baseline justify-between mb-4">
         <h2 className="text-xl font-bold text-slate-100">Interesting Growth Repositories</h2>
-        <Link href="/github/trending" className="text-xs text-blue-400 hover:text-blue-300">Mehr Discovery →</Link>
+        {/* Suppressed on /repositories (the hub itself) to avoid a self-link. */}
+        {showMoreLink && <Link href="/repositories" className="text-xs text-blue-400 hover:text-blue-300">Mehr Discovery →</Link>}
       </div>
 
       {items.length === 0 ? (

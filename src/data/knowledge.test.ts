@@ -68,6 +68,7 @@ describe("no LLM dependency in knowledge surface", () => {
     const files = [
       ...scan(join(process.cwd(), "src/data")),
       ...scan(join(process.cwd(), "src/app/github")),
+      ...scan(join(process.cwd(), "src/app/repositories")),
       ...scan(join(process.cwd(), "src/lib/discovery")),
       ...scan(join(process.cwd(), "src/app/api/jobs")),
     ];
