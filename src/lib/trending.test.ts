@@ -75,7 +75,7 @@ describe("trending jobs", () => {
 
 // Vision PHASE-3 — daily discovery writes daily + niche, no LLM
 describe("daily discovery", () => {
-  it("writes Daily Top 5 and Niche rankings from candidates", async () => {
+  it("PHASE-4: daily keeps giants, niche hard-excludes >50k giants", async () => {
     const stores = freshStores();
     const cands = [
       { owner: "big", repo: "giant", stars: 90000, forks: 800, language: "C", description: null },
@@ -84,15 +84,57 @@ describe("daily discovery", () => {
     ];
     const res = await updateDailyDiscovery("2026-06-09", { stores, fetchCandidates: async () => cands });
     expect(res.snapshotsCreated).toBe(3);
-    expect(res.dailyWritten).toBe(3);
-    expect(res.nicheWritten).toBe(3);
+    expect(res.dailyWritten).toBe(3); // daily not filtered (≤3 of 3 cands)
+    expect(res.nicheWritten).toBe(2); // giant excluded → only gem + tool eligible
 
     const daily = await stores.rankings.getLatest("daily");
-    expect(daily[0].repo_key).toBe("big/giant"); // popularity wins daily
+    expect(daily[0].repo_key).toBe("big/giant"); // popularity wins daily (giants allowed here)
 
     const niche = await stores.rankings.getLatest("niche");
-    expect(niche[0].repo_key).not.toBe("big/giant"); // niche is not star-dominant
+    // TEST-009: a >50k giant must NEVER appear in niche.
+    expect(niche.some((n) => n.repo_key === "big/giant")).toBe(false);
     expect(niche.every((n) => n.period_type === "niche")).toBe(true);
+  });
+
+  it("OBS-001: caps Daily at 3 and Niche at 5 when enough candidates exist", async () => {
+    const stores = freshStores();
+    const cands = [
+      { owner: "big", repo: "giant", stars: 80000, forks: 900, language: "C", description: "huge" },
+      ...Array.from({ length: 8 }, (_, i) => ({
+        owner: `o${i}`, repo: `r${i}`, stars: 200 + i * 250, forks: 40 + i * 20,
+        language: "TS", description: `useful ${i}`,
+      })),
+    ];
+    const res = await updateDailyDiscovery("2026-06-12", { stores, fetchCandidates: async () => cands });
+    expect(res.dailyWritten).toBe(3);
+    expect(res.nicheWritten).toBe(5);
+
+    const niche = await stores.rankings.getLatest("niche");
+    expect(niche.length).toBe(5);
+    expect(niche.every((n) => n.stars <= 50000)).toBe(true); // no giant slipped in
+  });
+
+  it("TEST-009: a repo at exactly 50000 stars IS niche-eligible (<=, not <)", async () => {
+    const stores = freshStores();
+    const cands = [
+      { owner: "edge", repo: "fifty", stars: 50000, forks: 200, language: "TS", description: "edge" },
+      { owner: "over", repo: "giant", stars: 50001, forks: 200, language: "TS", description: "over" },
+    ];
+    await updateDailyDiscovery("2026-06-13", { stores, fetchCandidates: async () => cands });
+    const niche = await stores.rankings.getLatest("niche");
+    expect(niche.some((n) => n.repo_key === "edge/fifty")).toBe(true); // 50000 included
+    expect(niche.some((n) => n.repo_key === "over/giant")).toBe(false); // 50001 excluded
+  });
+
+  it("BLOCKER-002: a giant in first-run daily is flagged sample, no 'seit gestern' reason", async () => {
+    const stores = freshStores();
+    await updateDailyDiscovery("2026-06-14", { stores, fetchCandidates: async () => [
+      { owner: "big", repo: "giant", stars: 90000, forks: 800, language: "C", description: null },
+    ] });
+    const daily = await stores.rankings.getLatest("daily");
+    expect(daily[0].repo_key).toBe("big/giant");
+    expect(daily[0].is_fallback).toBe(true); // no 24h history → sample
+    expect(daily[0].reason).not.toMatch(/seit gestern/); // no fabricated movement
   });
 
   it("marks daily as fallback without 24h history, true with delta (PHASE-4)", async () => {

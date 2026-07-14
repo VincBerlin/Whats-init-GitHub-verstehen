@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+// PRIL context-check: the feature's Product Canvas exists and is user-confirmed.
+// Usage: plumbline-context-check <feature>
+import { readFileSync } from "node:fs";
+import { parseCanvasStatus } from "./lib/pril-core.mjs";
+
+const feature = process.argv[2];
+if (!feature) {
+  console.error("usage: plumbline-context-check <feature>");
+  process.exit(2);
+}
+const path = `docs/canvas/${feature}.canvas.md`;
+let text;
+try {
+  text = readFileSync(path, "utf8");
+} catch {
+  console.error(`context-check: MISSING canvas ${path}`);
+  process.exit(2);
+}
+const status = parseCanvasStatus(text);
+if (status === "user-confirmed") {
+  console.log(`context-check: PASS (${path} → Status: user-confirmed)`);
+  process.exit(0);
+}
+console.error(`context-check: FAIL (${path} Status: ${status ?? "absent"} — need a plain 'Status: user-confirmed' line)`);
+process.exit(3);

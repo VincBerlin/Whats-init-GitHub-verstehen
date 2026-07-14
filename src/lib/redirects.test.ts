@@ -8,16 +8,25 @@ describe("legacy route redirects", () => {
     expect(typeof nextConfig.redirects).toBe("function");
   });
 
-  it("permanently redirects /lernen and /wiki/* to /github", async () => {
+  it("permanently redirects legacy /lernen and /wiki/* to /github", async () => {
     const redirects = await nextConfig.redirects!();
-    const sources = redirects.map((r) => r.source);
+    const bySource = new Map(redirects.map((r) => [r.source, r]));
 
-    expect(sources).toContain("/lernen");
-    expect(sources).toContain("/wiki/:slug*");
-
-    for (const r of redirects) {
-      expect(r.destination).toBe("/github");
-      expect(r.permanent).toBe(true);
+    for (const src of ["/lernen", "/wiki", "/wiki/:slug*"]) {
+      expect(bySource.get(src)?.destination).toBe("/github");
+      expect(bySource.get(src)?.permanent).toBe(true);
     }
+  });
+
+  it("OPEN-001: permanently redirects /github/trending to /repositories", async () => {
+    const redirects = await nextConfig.redirects!();
+    const r = redirects.find((x) => x.source === "/github/trending");
+    expect(r?.destination).toBe("/repositories");
+    expect(r?.permanent).toBe(true);
+  });
+
+  it("every redirect is permanent", async () => {
+    const redirects = await nextConfig.redirects!();
+    for (const r of redirects) expect(r.permanent).toBe(true);
   });
 });

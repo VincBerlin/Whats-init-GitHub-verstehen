@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+// PRIL redact: strip secrets/PII from stdin before it could be logged.
+// Usage: <something> | plumbline-redact
+import { readFileSync } from "node:fs";
+import { redact } from "./lib/pril-core.mjs";
+
+let input = "";
+try {
+  input = readFileSync(0, "utf8");
+} catch {
+  input = "";
+}
+process.stdout.write(redact(input));

@@ -4,6 +4,7 @@ import DailyTopRepos from "@/components/DailyTopRepos";
 import WeeklyTopRepos from "@/components/WeeklyTopRepos";
 import NicheFinds from "@/components/NicheFinds";
 import AdSlot from "@/components/AdSlot";
+import HomepageTools from "@/components/home/HomepageTools";
 import { parseRepoInput } from "@/lib/repo-normalize";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, getDictionary, isLocale } from "@/lib/i18n";
 
@@ -22,7 +23,7 @@ export default async function HomePage() {
   const d = getDictionary(isLocale(cookieLang) ? cookieLang : DEFAULT_LOCALE);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-24 text-center">
+    <div className="max-w-4xl mx-auto px-4 py-24 text-center">
       {/* Hero */}
       <div className="mb-4 inline-flex items-center gap-2 text-xs font-medium text-blue-400 bg-blue-400/10 border border-blue-400/20 rounded-full px-3 py-1">
         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
@@ -41,7 +42,7 @@ export default async function HomePage() {
       </p>
 
       {/* Search form */}
-      <form action={handleSubmit} className="flex gap-3 max-w-xl mx-auto mb-6">
+      <form id="analyze" action={handleSubmit} className="flex gap-3 max-w-xl mx-auto mb-6 scroll-mt-20">
         <input
           name="url"
           type="text"
@@ -58,14 +59,8 @@ export default async function HomePage() {
         </button>
       </form>
 
-      <p className="text-xs text-slate-600">
-        {d.search.examples}{" "}
-        {["vercel/next.js", "shadcn-ui/ui", "badlogic/pi-mono"].map((r) => (
-          <a key={r} href={`/analyse/${r}`} className="text-slate-500 hover:text-blue-400 transition-colors mx-1.5 underline underline-offset-2">
-            {r}
-          </a>
-        ))}
-      </p>
+      {/* FR-002: three free, local, zero-LLM tools embedded + usable on the homepage. */}
+      <HomepageTools />
 
       {/* Discovery (Daily → Weekly → Niche) — stored data, no live GitHub / no LLM */}
       <div className="mt-20 space-y-16">

@@ -68,8 +68,15 @@ describe("no LLM dependency in knowledge surface", () => {
     const files = [
       ...scan(join(process.cwd(), "src/data")),
       ...scan(join(process.cwd(), "src/app/github")),
+      ...scan(join(process.cwd(), "src/app/repositories")),
+      ...scan(join(process.cwd(), "src/components/home")),
       ...scan(join(process.cwd(), "src/lib/discovery")),
       ...scan(join(process.cwd(), "src/app/api/jobs")),
+      // homepage + discovery display components (no LLM on the page-view path)
+      join(process.cwd(), "src/app/page.tsx"),
+      join(process.cwd(), "src/components/DailyTopRepos.tsx"),
+      join(process.cwd(), "src/components/WeeklyTopRepos.tsx"),
+      join(process.cwd(), "src/components/NicheFinds.tsx"),
     ];
     for (const f of files) {
       const content = readFileSync(f, "utf8");

@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { getDailyTop } from "@/lib/weekly-data";
 
-// Vision PHASE-2 / FR-005/006 — Daily Top 5, 5 cards horizontal on desktop,
-// directly under the analysis search. DB read only (NFR-001), no LLM.
+// PHASE-4 (homepage-tools-discovery) / FR-005/006 — Daily Top 3, directly under the
+// analysis search. DB read only (NFR-001), no LLM. Honest sample label when no 24h delta.
 export default async function DailyTopRepos() {
   const { items, isFallback } = await getDailyTop();
 
   if (items.length === 0) {
     return (
       <section className="text-left">
-        <h2 className="text-xl font-bold text-slate-100 mb-3">Daily Top 5</h2>
+        <h2 className="text-xl font-bold text-slate-100 mb-3">Daily Top 3</h2>
         <p className="text-sm text-slate-500">Daily ranking is being prepared.</p>
       </section>
     );
@@ -18,11 +18,11 @@ export default async function DailyTopRepos() {
   return (
     <section className="text-left">
       <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-100">Daily Top 5</h2>
-        {isFallback && <span className="text-xs text-slate-600">Beispiel-Auswahl</span>}
+        <h2 className="text-xl font-bold text-slate-100">Daily Top 3</h2>
+        {isFallback && <span className="text-xs text-slate-600">Beispiel-Auswahl (noch keine 24‑h‑Bewegung)</span>}
       </div>
-      <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {items.slice(0, 5).map((r) => (
+      <ol className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {items.slice(0, 3).map((r) => (
           <li key={`${r.owner}-${r.repo}`}>
             <Link
               href={r.analyseHref}

@@ -2,15 +2,35 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { matchErrors } from "@/lib/error-matcher";
+import { matchErrors, availableCategories } from "@/lib/error-matcher";
+import type { DebugCategory, DebugSeverity } from "@/data/error-patterns";
 
-type Filter = "all" | "git" | "actions";
+type Filter = "all" | DebugCategory;
 
-// PHASE-6 — combined Git & Actions debugger. 100% client-side, deterministic,
-// no network or LLM call. Paste an error, get likely causes + fixes.
+// PHASE-3 — Git/GitHub/Actions/Deployment debugger. 100% client-side, deterministic,
+// no network or LLM call (NFR-002). Paste an error → plain cause, safe fix, risk warning.
+const CATEGORY_LABEL: Record<DebugCategory, string> = {
+  git: "Git", github: "GitHub", actions: "Actions", deployment: "Deploy", node: "Node", auth: "Auth",
+};
+const CATEGORY_BADGE: Record<DebugCategory, string> = {
+  git: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  github: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  actions: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+  deployment: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+  node: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  auth: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+};
+const SEVERITY_BADGE: Record<DebugSeverity, string> = {
+  info: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+  warning: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  danger: "bg-red-500/15 text-red-300 border-red-500/30",
+};
+const SEVERITY_LABEL: Record<DebugSeverity, string> = { info: "Info", warning: "Achtung", danger: "Gefahr" };
+
 export default function DebuggerTool() {
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const categories = useMemo(() => availableCategories(), []);
 
   const matches = useMemo(
     () => matchErrors(input, filter === "all" ? undefined : filter),
@@ -19,8 +39,8 @@ export default function DebuggerTool() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-3">
-        {(["all", "git", "actions"] as Filter[]).map((f) => (
+      <div className="flex flex-wrap gap-2 mb-3">
+        {(["all", ...categories] as Filter[]).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -30,7 +50,7 @@ export default function DebuggerTool() {
                 : "border-slate-700/60 text-slate-400 hover:text-slate-200"
             }`}
           >
-            {f === "all" ? "Alle" : f === "git" ? "Git" : "Actions"}
+            {f === "all" ? "Alle" : CATEGORY_LABEL[f]}
           </button>
         ))}
       </div>
@@ -57,22 +77,38 @@ export default function DebuggerTool() {
 
         {matches.map(({ pattern }) => (
           <div key={pattern.id} className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded-full border ${pattern.tool === "git" ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-violet-500/15 text-violet-400 border-violet-500/30"}`}>
-                {pattern.tool === "git" ? "Git" : "Actions"}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded-full border ${CATEGORY_BADGE[pattern.category]}`}>
+                {CATEGORY_LABEL[pattern.category]}
+              </span>
+              <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded-full border ${SEVERITY_BADGE[pattern.severity]}`}>
+                {SEVERITY_LABEL[pattern.severity]}
               </span>
               <h3 className="text-sm font-semibold text-slate-100">{pattern.title}</h3>
             </div>
-            <p className="text-sm text-slate-400 mb-3">{pattern.cause}</p>
+
+            {/* Beginner-first: plain cause, then the precise technical cause. */}
+            <p className="text-sm text-slate-300 mb-2">{pattern.simpleCause}</p>
+            <p className="text-xs text-slate-500 mb-3"><span className="font-semibold text-slate-400">Technisch:</span> {pattern.technicalCause}</p>
+
+            {pattern.riskWarning && (
+              <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+                <strong>⚠ Achtung:</strong> {pattern.riskWarning}
+              </div>
+            )}
+
             <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wide mb-1">So behebst du es</p>
             <ol className="space-y-1 mb-3">
-              {pattern.fix.map((step, i) => (
+              {pattern.fixCommands.map((step, i) => (
                 <li key={i} className="flex gap-2 text-sm text-slate-300"><span className="text-slate-600">{i + 1}.</span>{step}</li>
               ))}
             </ol>
-            {pattern.related && pattern.related.length > 0 && (
+
+            <p className="text-xs text-slate-400 mb-3">{pattern.explanation}</p>
+
+            {pattern.relatedLinks.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {pattern.related.map((r) => (
+                {pattern.relatedLinks.map((r) => (
                   <Link key={r.href} href={r.href} className="text-xs text-blue-400 hover:text-blue-300 underline">{r.label}</Link>
                 ))}
               </div>

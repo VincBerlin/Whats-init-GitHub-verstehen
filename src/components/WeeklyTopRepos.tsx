@@ -3,7 +3,7 @@ import { getWeeklyTop } from "@/lib/weekly-data";
 
 // PHASE-5 — async server component. Reads stored Weekly Top 10 (or seed fallback).
 // No live GitHub fetch, no OpenRouter (NFR-001, FR-017, NOGOAL-004).
-export default async function WeeklyTopRepos({ heading = true }: { heading?: boolean }) {
+export default async function WeeklyTopRepos({ heading = true, showMoreLink = true }: { heading?: boolean; showMoreLink?: boolean }) {
   const { items, isFallback } = await getWeeklyTop();
   if (items.length === 0) return null;
 
@@ -12,7 +12,8 @@ export default async function WeeklyTopRepos({ heading = true }: { heading?: boo
       {heading && (
         <div className="flex items-baseline justify-between mb-5">
           <h2 className="text-xl font-bold text-slate-100">Weekly Top 10</h2>
-          <Link href="/github/trending" className="text-xs text-blue-400 hover:text-blue-300">Alle ansehen →</Link>
+          {/* Suppressed on /repositories (the hub itself) to avoid a self-link. */}
+          {showMoreLink && <Link href="/repositories" className="text-xs text-blue-400 hover:text-blue-300">Alle ansehen →</Link>}
         </div>
       )}
       {isFallback && (
