@@ -78,7 +78,7 @@ Idempotent and safe to re-run. Rollback for the initial schema: `migrations/0001
 7. [ ] Run the **same** analysis again.
 8. [ ] Verify in `usage_events`: the second request is a `cache_hit` and produced
        **no** new `openrouter_call` (cost-control invariant).
-9. [ ] Trigger trending jobs (or run the GitHub Actions `Trending Jobs` workflow):
+9. [ ] Trigger trending jobs manually (or run the GitHub Actions `Trending Jobs (Manual Only)` workflow):
        `POST /api/jobs/update-trending-snapshots` then `/api/jobs/update-weekly-trending`
        with `Authorization: Bearer $CRON_SECRET` → homepage Weekly Top 10 populates.
 10. [ ] Verify `/robots.txt`, `/sitemap.xml`, `/ads.txt` respond.
